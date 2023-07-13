@@ -1,3 +1,4 @@
+import os
 from tkinter.ttk import Progressbar
 import pandas as pd
 import tkinter as tk
@@ -23,6 +24,16 @@ class Importdata(object):
 
 class DataLogs(object):
 
+    def __init__(self):
+        self.text_file_logged_data = self.create_text_file()
+
+    def create_text_file(self):
+        filename = f'Data_logs_{self.get_time()}.txt'
+        if not os.path.isfile(filename):
+            with open(filename, 'w') as file:
+                file.write(f"Start logging: {self.get_time()}\n")
+        return filename
+
     def get_time(self):
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -33,10 +44,13 @@ class DataLogs(object):
         if value == 1:
             listbox.insert('end', f'{current_data} {sheet_name}: Zakończono procedurę: {name}')
             listbox.itemconfig('end', fg='green')
+            with open(self.text_file_logged_data, 'a+') as file:
+                file.write(f'{current_data} {sheet_name}: Zakończono procedurę: {name}\n')
         else:
             listbox.insert('end', f'{current_data} {sheet_name}: Anuulowano procedurę: {name}')
             listbox.itemconfig('end', fg='red')
-
+            with open(self.text_file_logged_data, 'a+') as file:
+                file.write(f'{current_data} {sheet_name}: Anuulowano procedurę: {name}\n')
 
 class Figure1(object):
 
