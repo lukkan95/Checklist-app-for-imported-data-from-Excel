@@ -36,7 +36,7 @@ class DataLogs(object):
 
     def get_time(self):
         now = datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        dt_string = now.strftime("%d_%m_%Y %H-%M-%S")
         return dt_string
 
     def log_status_of_checkbutton(self, listbox, name, value, sheet_name):
