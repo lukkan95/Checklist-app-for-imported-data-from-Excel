@@ -24,9 +24,6 @@ class Importdata(object):
 
 class DataLogs(object):
 
-    # def __init__(self):
-    #     self.text_file_logged_data = self.create_text_file()
-
     def create_text_file(self):
         filename = f'Data_logs_{self.get_time()}.txt'
         if not os.path.isfile(filename):
