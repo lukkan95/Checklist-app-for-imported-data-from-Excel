@@ -24,8 +24,8 @@ class Importdata(object):
 
 class DataLogs(object):
 
-    def __init__(self):
-        self.text_file_logged_data = self.create_text_file()
+    # def __init__(self):
+    #     self.text_file_logged_data = self.create_text_file()
 
     def create_text_file(self):
         filename = f'Data_logs_{self.get_time()}.txt'
@@ -39,17 +39,17 @@ class DataLogs(object):
         dt_string = now.strftime("%d_%m_%Y %H-%M-%S")
         return dt_string
 
-    def log_status_of_checkbutton(self, listbox, name, value, sheet_name):
+    def log_status_of_checkbutton(self, listbox, name, value, sheet_name, filename):
         current_data = self.get_time()
         if value == 1:
             listbox.insert('end', f'{current_data} {sheet_name}: Zakończono procedurę: {name}')
             listbox.itemconfig('end', fg='green')
-            with open(self.text_file_logged_data, 'a+') as file:
+            with open(filename, 'a+') as file:
                 file.write(f'{current_data} {sheet_name}: Zakończono procedurę: {name}\n')
         else:
             listbox.insert('end', f'{current_data} {sheet_name}: Anuulowano procedurę: {name}')
             listbox.itemconfig('end', fg='red')
-            with open(self.text_file_logged_data, 'a+') as file:
+            with open(filename, 'a+') as file:
                 file.write(f'{current_data} {sheet_name}: Anuulowano procedurę: {name}\n')
 
 class Figure1(object):
@@ -90,6 +90,8 @@ class Figure1(object):
         self.tfr.tkraise()
         self.pb1.tkraise()
         self.lb1.tkraise()
+
+        self.filename = DataLogs().create_text_file()
 
     def root_mainloop_start(self):
         self.root.attributes("-topmost", True)
@@ -154,7 +156,7 @@ class Figure1(object):
     def add_checkbutton(self, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
         cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', bg='white', anchor='w', variable=var,
-                            command=lambda: [DataLogs().log_status_of_checkbutton(self.listbox_1, elem, var.get(), sheet_choice),
+                            command=lambda: [DataLogs().log_status_of_checkbutton(self.listbox_1, elem, var.get(), sheet_choice, self.filename),
                                              self.change_color_buttons(cb, var.get()),
                                              self.change_status_checkbutton(elem, var.get(), sheet_choice), self.check_if_status_completed(sheet_choice), self.update_progressbar(progressbar, sheet_choice), self.update_label_progressbar(sheet_choice, label_progressbar)])
         return cb
