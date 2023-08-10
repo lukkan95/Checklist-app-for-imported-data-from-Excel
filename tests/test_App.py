@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 from App import Main
+import os
 
 
 class Test(unittest.TestCase):
@@ -15,6 +16,15 @@ class Test(unittest.TestCase):
     #
     def test_get_time(self):
         assert Main.DataLogs().get_time() == datetime.now().strftime("%d_%m_%Y %H-%M-%S")
+
+    def test_create_test_file(self):
+        temp_file = Main.DataLogs().create_text_file()
+        with open(temp_file, 'r') as file:
+            line = file.readlines()
+            assert line[0] != 0
+        path = f'{os.path.dirname(os.path.realpath(__file__))}\{temp_file}'
+        os.remove(path)
+
 
 
 
