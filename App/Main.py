@@ -36,6 +36,12 @@ class DataLogs(object):
         dt_string = now.strftime("%d_%m_%Y %H-%M-%S")
         return dt_string
 
+    # def confirm_procedure(self):
+    #     pass
+    #
+    # def cancellation_procedure(self):
+    #     pass
+
     def log_status_of_checkbutton(self, listbox, name, value, sheet_name, filename):
         current_data = self.get_time()
         if value == 1:
@@ -63,6 +69,8 @@ class Figure1(object):
         self.page1_frame()
         self.page3_frame()
         self.lower_frame()
+
+        self.timer_label()
 
         self.pb1 = self.progressbar()
         self.lb1 = self.label_progressbar(self.sheet_1)
@@ -94,6 +102,7 @@ class Figure1(object):
         self.root.attributes("-topmost", True)
         self.root.title('Rejestrator procedury startowej')
         self.root.config(bg='#ff6666')
+
         self.root.mainloop()
 
     def start_parameters(self):
@@ -134,6 +143,17 @@ class Figure1(object):
         self.listbox_1 = tk.Listbox(self.log, yscrollcommand=self.scrollbar.set)
         self.listbox_1.pack(side='left', fill='both', expand=1)
         self.log.config(yscrollcommand=self.listbox_1.yview())
+
+    def timer_label(self):
+        self.clock = tk.Label(self.root, text=self.get_time_to_timer())
+        self.clock.place(relx=0.8, rely=0.05, relwidth=0.1, relheight=0.03)
+        self.clock.after(1000, self.timer_label())
+
+
+    def get_time_to_timer(self):
+        now = datetime.now()
+        dt_string = now.strftime("%H:%M:%S")
+        return dt_string
 
     def create_scrolltext(self, root):
         self.scrolltexture = ScrolledText(root, x=int(self.x * 0.05), y=int(self.x * 0.2), width=int(self.x * 0.1),
