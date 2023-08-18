@@ -24,12 +24,12 @@ class Importdata(object):
 
 class DataLogs(object):
 
-    def create_text_file(self):
-        filename = f'Data_logs_{self.get_time()}.txt'
-        if not os.path.isfile(filename):
-            with open(filename, 'w') as file:
-                file.write(f"Start logging: {self.get_time()}\n")
-        return filename
+    # def create_text_file(self):
+    #     filename = f'Data_logs_{self.get_time()}.txt'
+    #     if not os.path.isfile(filename):
+    #         with open(filename, 'w') as file:
+    #             file.write(f"Start logging: {self.get_time()}\n")
+    #     return filename
 
     def get_time(self):
         now = datetime.now()
@@ -42,18 +42,18 @@ class DataLogs(object):
     # def cancellation_procedure(self):
     #     pass
 
-    def log_status_of_checkbutton(self, listbox, name, value, sheet_name, filename):
+    def log_status_of_checkbutton(self, listbox, name, value, sheet_name, filename=None):
         current_data = self.get_time()
         if value == 1:
             listbox.insert('end', f'{current_data} {sheet_name}: Zakończono procedurę: {name}')
             listbox.itemconfig('end', fg='green')
-            with open(filename, 'a+') as file:
-                file.write(f'{current_data} {sheet_name}: Zakończono procedurę: {name}\n')
+            # with open(filename, 'a+') as file:
+            #     file.write(f'{current_data} {sheet_name}: Zakończono procedurę: {name}\n')
         else:
             listbox.insert('end', f'{current_data} {sheet_name}: Anuulowano procedurę: {name}')
             listbox.itemconfig('end', fg='red')
-            with open(filename, 'a+') as file:
-                file.write(f'{current_data} {sheet_name}: Anuulowano procedurę: {name}\n')
+            # with open(filename, 'a+') as file:
+            #     file.write(f'{current_data} {sheet_name}: Anuulowano procedurę: {name}\n')
 
 class Figure1(object):
 
@@ -70,7 +70,11 @@ class Figure1(object):
         self.page3_frame()
         self.lower_frame()
 
+        self.bind_key_maximize_window()
+        self.bind_key_exit_applicaiton()
+
         self.timer_label()
+        self.update_timer_label()
 
         self.pb1 = self.progressbar()
         self.lb1 = self.label_progressbar(self.sheet_1)
@@ -96,13 +100,12 @@ class Figure1(object):
         self.pb1.tkraise()
         self.lb1.tkraise()
 
-        self.filename = DataLogs().create_text_file()
+        # self.filename = DataLogs().create_text_file()
 
     def root_mainloop_start(self):
         self.root.attributes("-topmost", True)
         self.root.title('Rejestrator procedury startowej')
         self.root.config(bg='#ff6666')
-
         self.root.mainloop()
 
     def start_parameters(self):
@@ -110,7 +113,25 @@ class Figure1(object):
         self.y = 800
         self.root.geometry(f'{self.x}x{self.y}')
         self.root.resizable(False, False)
+        # self.root.state('zoomed')
         self.root.title('Figure1')
+
+    def maximize_window(self):
+        self.root.state('zoomed')
+        self.bind_key_minimize_window()
+
+    def minimize_window(self):
+        self.root.state('normal')
+        self.bind_key_maximize_window()
+
+    def bind_key_exit_applicaiton(self):
+        self.root.bind('<Escape>', lambda e: self.root.destroy())
+
+    def bind_key_maximize_window(self):
+        self.root.bind('<Tab>', lambda e: self.maximize_window())
+
+    def bind_key_minimize_window(self):
+        self.root.bind('<Tab>', lambda e: self.minimize_window())
 
     def create_dict_check_status(self):
         self.dict_check_status = {self.sheet_1: {},
@@ -119,19 +140,19 @@ class Figure1(object):
 
     def page1_frame(self):
         self.tfr = tk.Frame(self.root, width=0.1, height=0.1)
-        self.tfr.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.5)
+        self.tfr.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
 
     def page2_frame(self):
         self.p2f = tk.Frame(self.root, width=0.1, height=0.1, bg='yellow')
-        self.p2f.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.5)
+        self.p2f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
 
     def page3_frame(self):
         self.p3f = tk.Frame(self.root, width=0.1, height=0.1, bg='green')
-        self.p3f.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.5)
+        self.p3f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
 
     def lower_frame(self):
         self.dfr = tk.Frame(self.root, width=0.1, height=0.1, bg='white')
-        self.dfr.place(relx=0.1, rely=0.7, relwidth=0.8, relheight=0.25)
+        self.dfr.place(relx=0.05, rely=0.7, relwidth=0.9, relheight=0.25)
 
     def scrollbar_lower_frame(self):
         self.scrollbar = tk.Scrollbar(self.dfr)
@@ -145,19 +166,21 @@ class Figure1(object):
         self.log.config(yscrollcommand=self.listbox_1.yview())
 
     def timer_label(self):
-        self.clock = tk.Label(self.root, text=self.get_time_to_timer())
-        self.clock.place(relx=0.8, rely=0.05, relwidth=0.1, relheight=0.03)
-        self.clock.after(1000, self.timer_label())
+        self.clock = tk.Label(self.root, text=self.get_time_to_timer(), font=("Segoe UI", "12"))
+        self.clock.place(relx=0.85, rely=0.05, relwidth=0.1, relheight=0.03)
 
+    def update_timer_label(self):
+        self.clock.config(text=self.get_time_to_timer())
+        self.clock.after(1000, self.update_timer_label)
 
     def get_time_to_timer(self):
         now = datetime.now()
-        dt_string = now.strftime("%H:%M:%S")
+        dt_string = now.strftime("%H : %M : %S")
         return dt_string
 
     def create_scrolltext(self, root):
-        self.scrolltexture = ScrolledText(root, x=int(self.x * 0.05), y=int(self.x * 0.2), width=int(self.x * 0.1),
-                                          height=int(self.y * 0.04))
+        self.scrolltexture = ScrolledText(root, x=int(self.x * 0), y=int(self.x * 0), width=int(self.x * 0.2),
+                                          height=int(self.y * 0.05))
         self.scrolltexture.pack()
 
     def add_to_scrolltext(self, sheet_choice, progressbar, label_progressbar):
@@ -173,9 +196,14 @@ class Figure1(object):
     def add_checkbutton(self, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
         cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', bg='white', anchor='w', variable=var,
-                            command=lambda: [DataLogs().log_status_of_checkbutton(self.listbox_1, elem, var.get(), sheet_choice, self.filename),
+                            command=lambda: [DataLogs().log_status_of_checkbutton(self.listbox_1, elem, var.get(), sheet_choice
+                                                                                  # , self.filename
+                                                                                  ),
                                              self.change_color_buttons(cb, var.get()),
-                                             self.change_status_checkbutton(elem, var.get(), sheet_choice), self.check_if_status_completed(sheet_choice), self.update_progressbar(progressbar, sheet_choice), self.update_label_progressbar(sheet_choice, label_progressbar)])
+                                             self.change_status_checkbutton(elem, var.get(), sheet_choice),
+                                             self.check_if_status_completed(sheet_choice),
+                                             self.update_progressbar(progressbar, sheet_choice),
+                                             self.update_label_progressbar(sheet_choice, label_progressbar)])
         return cb
 
     def change_color_buttons(self, elem, value):
@@ -192,7 +220,7 @@ class Figure1(object):
             self.root.config(background="#ff6666")
             self.root.update()
         else:
-            self.root.config(background="#4dffa6")
+            self.root.config(background="#006118")
             self.root.update()
 
     def progressbar(self):
@@ -224,20 +252,20 @@ class Figure1(object):
 
     def add_button1(self):
         self.btn1 = tk.Button(self.root, text=self.sheet_1, command=lambda: [self.tfr.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(), self.check_if_status_completed(self.sheet_1),  self.update_progressbar(self.pb1, self.sheet_1), self.update_label_progressbar(self.sheet_1, self.lb1)])
-        self.btn1.place(relx=0.1, rely=0.05, relwidth=0.1, relheight=0.03)
+        self.btn1.place(relx=0.05, rely=0.05, relwidth=0.1, relheight=0.03)
 
 
     def add_button2(self):
         self.btn2 = tk.Button(self.root, text=self.sheet_2,
                               command=lambda: [self.p2f.tkraise(), self.pb2.tkraise(), self.lb2.tkraise(),
                                                self.check_if_status_completed(self.sheet_2)])
-        self.btn2.place(relx=0.21, rely=0.05, relwidth=0.1, relheight=0.03)
+        self.btn2.place(relx=0.16, rely=0.05, relwidth=0.1, relheight=0.03)
 
     def add_button3(self):
         self.btn3 = tk.Button(self.root, text=self.sheet_3,
                               command=lambda: [self.p3f.tkraise(), self.pb3.tkraise(), self.lb3.tkraise(),
                                                self.check_if_status_completed(self.sheet_3)])
-        self.btn3.place(relx=0.32, rely=0.05, relwidth=0.1, relheight=0.03)
+        self.btn3.place(relx=0.27, rely=0.05, relwidth=0.1, relheight=0.03)
 
     def label_example(self):
         pass
