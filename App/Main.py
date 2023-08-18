@@ -98,12 +98,14 @@ class Figure1(object):
         self.add_button1()
         self.add_button2()
         self.add_button3()
+        self.add_button_import_data_from_txt()
 
         self.tfr.tkraise()
         self.pb1.tkraise()
         self.lb1.tkraise()
 
-        print(self.checkbuttons_storage[0]['variable'])
+        # self.checkbuttons_storage[0]['fg'] = 'green'
+        # print(self.checkbuttons_storage[0]['variable'])
         # self.filename = DataLogs().create_text_file()
 
     def root_mainloop_start(self):
@@ -272,8 +274,16 @@ class Figure1(object):
                                                self.check_if_status_completed(self.sheet_3)])
         self.btn3.place(relx=0.27, rely=0.05, relwidth=0.1, relheight=0.03)
 
-    def label_example(self):
-        pass
+    def import_data_from_txt(self):
+        self.checkbuttons_storage[0]['fg'] = 'green'
+        self.tfr.update()
+
+    def add_button_import_data_from_txt(self):
+        self.btn3 = tk.Button(self.root, text='Import data',
+                              command=lambda: [])
+        self.btn3.place(relx=0.38, rely=0.05, relwidth=0.1, relheight=0.03)
+
+
 
 if __name__ == '__main__':
     figure = Figure1()
