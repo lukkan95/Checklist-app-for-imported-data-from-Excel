@@ -70,6 +70,8 @@ class Figure1(object):
         self.page3_frame()
         self.lower_frame()
 
+        self.checkbuttons_storage = []
+
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
 
@@ -92,6 +94,7 @@ class Figure1(object):
         self.create_scrolltext(self.p3f)
         self.add_to_scrolltext(self.sheet_3, self.pb3, self.lb3)
 
+
         self.add_button1()
         self.add_button2()
         self.add_button3()
@@ -100,6 +103,7 @@ class Figure1(object):
         self.pb1.tkraise()
         self.lb1.tkraise()
 
+        print(self.checkbuttons_storage[0]['variable'])
         # self.filename = DataLogs().create_text_file()
 
     def root_mainloop_start(self):
@@ -204,6 +208,7 @@ class Figure1(object):
                                              self.check_if_status_completed(sheet_choice),
                                              self.update_progressbar(progressbar, sheet_choice),
                                              self.update_label_progressbar(sheet_choice, label_progressbar)])
+        self.checkbuttons_storage.append(cb)
         return cb
 
     def change_color_buttons(self, elem, value):
