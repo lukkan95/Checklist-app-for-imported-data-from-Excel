@@ -36,24 +36,18 @@ class DataLogs(object):
         dt_string = now.strftime("%d_%m_%Y %H-%M-%S")
         return dt_string
 
-    # def confirm_procedure(self):
-    #     pass
-    #
-    # def cancellation_procedure(self):
-    #     pass
-
     def log_status_of_checkbutton(self, listbox, name, value, sheet_name, filename=None):
         current_data = self.get_time()
         if value == 1:
-            listbox.insert('end', f'{current_data} {sheet_name}: Zakończono procedurę: {name}')
+            listbox.insert('end', f'{current_data} {sheet_name} : Zakończono procedurę: {name}')
             listbox.itemconfig('end', fg='green')
             # with open(filename, 'a+') as file:
-            #     file.write(f'{current_data} {sheet_name}: Zakończono procedurę: {name}\n')
+            #     file.write(f'{current_data} {sheet_name} : Zakończono procedurę: {name}\n')
         else:
-            listbox.insert('end', f'{current_data} {sheet_name}: Anuulowano procedurę: {name}')
+            listbox.insert('end', f'{current_data} {sheet_name} : Anuulowano procedurę: {name}')
             listbox.itemconfig('end', fg='red')
             # with open(filename, 'a+') as file:
-            #     file.write(f'{current_data} {sheet_name}: Anuulowano procedurę: {name}\n')
+            #     file.write(f'{current_data} {sheet_name} : Anuulowano procedurę: {name}\n')
 
 class Figure1(object):
 
@@ -71,6 +65,7 @@ class Figure1(object):
         self.lower_frame()
 
         self.checkbuttons_storage = []
+
 
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
@@ -104,8 +99,12 @@ class Figure1(object):
         self.pb1.tkraise()
         self.lb1.tkraise()
 
+        self.state_active = tk.IntVar(self.root, value=1)
+        self.state_inactive = tk.IntVar(self.root, value=0)
+        self.number = 1
+
         # self.checkbuttons_storage[0]['fg'] = 'green'
-        # print(self.checkbuttons_storage[0]['variable'])
+        print(self.checkbuttons_storage[0]['variable'])
         # self.filename = DataLogs().create_text_file()
 
     def root_mainloop_start(self):
@@ -197,11 +196,11 @@ class Figure1(object):
             self.scrolltexture['state'] = 'normal'
             self.scrolltexture.window_create('end', window=new_checkbutton)
             self.scrolltexture.insert('end', '\n')
-            self.scrolltexture['state'] = 'disabled'
+            # self.scrolltexture['state'] = 'disabled'
 
     def add_checkbutton(self, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
-        cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', bg='white', anchor='w', variable=var,
+        cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', bg='white', anchor='w', variable=var, onvalue=1, offvalue=0,
                             command=lambda: [DataLogs().log_status_of_checkbutton(self.listbox_1, elem, var.get(), sheet_choice
                                                                                   # , self.filename
                                                                                   ),
@@ -274,13 +273,48 @@ class Figure1(object):
                                                self.check_if_status_completed(self.sheet_3)])
         self.btn3.place(relx=0.27, rely=0.05, relwidth=0.1, relheight=0.03)
 
+    def combine_number_with_sheet(self, arg):
+        if arg == 'A':
+            arg = 0
+        elif arg == 'B':
+            arg = 1
+        else:
+            arg = 2
+        return arg
+
     def import_data_from_txt(self):
-        self.checkbuttons_storage[0]['fg'] = 'green'
-        self.tfr.update()
+        filename = 'Data_logs_21_08_2023 15-34-32.txt'
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+            for line in lines[1:]:
+                imported_sheet = line.split(' ', 6)[2]
+                imported_state = line.split(' ', 6)[4]
+                imported_activity = (line.split(' ', 6)[6])
+                print(imported_sheet, imported_state, imported_activity)
+
+                if imported_state == 'Zakończono':
+                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'green'
+                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_active
+                    # print(self.checkbuttons_storage[0])
+                    # print(self.dict_check_status['A'])
+                    # self.dict_check_status[imported_sheet][imported_activity] = self.state_active
+                    # self.check_if_status_completed(imported_sheet),
+                    # self.update_progressbar(self.pb1, imported_sheet),
+                    # self.update_label_progressbar(imported_sheet, self.lb1)
+
+
+                elif imported_state == 'Anuulowano':
+                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'red'
+                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_inactive
+                    # print(self.checkbuttons_storage[0]['variable'])
+                    # self.dict_check_status[imported_sheet][imported_activity] = self.state_inactive
+                    # self.check_if_status_completed(imported_sheet),
+                    # self.update_progressbar(self.pb1, imported_sheet),
+                    # self.update_label_progressbar(imported_sheet, self.lb1)
 
     def add_button_import_data_from_txt(self):
         self.btn3 = tk.Button(self.root, text='Import data',
-                              command=lambda: [])
+                              command=lambda: [self.import_data_from_txt()])
         self.btn3.place(relx=0.38, rely=0.05, relwidth=0.1, relheight=0.03)
 
 
