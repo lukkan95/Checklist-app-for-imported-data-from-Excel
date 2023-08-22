@@ -75,6 +75,7 @@ class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
 
+
         self.excel_file_name = 'Procedury startowe.xlsx'
         self.sheet_1 = 'A'
         self.sheet_2 = 'B'
@@ -132,37 +133,46 @@ class Figure1(object):
         self.root.config(bg='#ff6666')
         self.root.mainloop()
 
+    def center_window_on_screen(self):
+        ws = self.root.winfo_screenwidth()
+        hs = self.root.winfo_screenheight()
+        x = (ws / 2) - (self.app_width / 2)
+        y = (hs / 2) - (self.app_height / 2)
+        self.root.geometry(f'{self.app_width}x{self.app_height}+{int(x)}+{int(y)}')
+
     def start_parameters(self):
-        self.x = 1200
-        self.y = 800
-        self.root.geometry(f'{self.x}x{self.y}')
+        self.app_width = 1200
+        self.app_height = 800
+        self.center_window_on_screen()
         self.root.resizable(False, False)
-        # self.root.state('zoomed')
         self.root.title('Figure1')
+
 
     def maximize_window(self):
         self.root.state('zoomed')
-        print('funkcja maximize')
         self.bind_key_minimize_window()
 
-
     def minimize_window(self):
-        self.root.state()
         self.root.state('normal')
-        print('funkcja minimize')
         self.bind_key_maximize_window()
 
+    def window_exit_confirmation(self):
+        new_window = tk.Toplevel(self.root)
+        new_window.title('Confirm Exit')
+        new_window.geometry('300x300')
+        new_window.attributes('-topmost', True)
+        # self.root.eval(f'tk::PlaceWindow {str(new_window)} center')
+        label = tk.Label(new_window, text='Are Your sure You want to quit?')
+        label.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     def bind_key_exit_applicaiton(self):
         self.root.bind('<Escape>', lambda e: self.root.destroy())
 
     def bind_key_maximize_window(self):
         self.root.bind('<Tab>', lambda e: self.maximize_window())
-        print('teraz maximize bind')
 
     def bind_key_minimize_window(self):
         self.root.bind('<Tab>', lambda e: self.minimize_window())
-        print('teraz minimize bind')
 
     def create_dict_check_status(self):
         self.dict_check_status = {self.sheet_1: {},
@@ -210,9 +220,8 @@ class Figure1(object):
         return dt_string
 
     def create_scrolltext(self, root):
-        self.scrolltexture = ScrolledText(root, x=int(self.x * 0), y=int(self.x * 0), width=int(self.x * 0.2),
-                                          height=int(self.y * 0.05))
-        self.scrolltexture.pack()
+        self.scrolltexture = ScrolledText(root)
+        self.scrolltexture.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     def add_to_scrolltext(self, sheet_choice, progressbar, label_progressbar):
         import_data = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
@@ -222,7 +231,7 @@ class Figure1(object):
             self.scrolltexture['state'] = 'normal'
             self.scrolltexture.window_create('end', window=new_checkbutton)
             self.scrolltexture.insert('end', '\n')
-            # self.scrolltexture['state'] = 'disabled'
+            self.scrolltexture['state'] = 'disabled'
 
     def add_checkbutton(self, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
@@ -308,6 +317,7 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
+        self.window_exit_confirmation()
         filename = 'Data_logs_21_08_2023 15-34-32.txt'
         with open(filename, 'r') as file:
             lines = file.readlines()
@@ -341,6 +351,7 @@ class Figure1(object):
         self.btn3 = tk.Button(self.root, text='Import data',
                               command=lambda: [self.import_data_from_txt()])
         self.btn3.place(relx=0.38, rely=0.05, relwidth=0.1, relheight=0.03)
+
 
 
 
