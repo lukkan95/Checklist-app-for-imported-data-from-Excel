@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime
 from App import Main
 import os
-import tkinter as tk
+# import tkinter as tk
 
 
 class Test(unittest.TestCase):

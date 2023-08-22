@@ -6,11 +6,11 @@ from tkinter.scrolledtext import ScrolledText
 from datetime import datetime
 
 
-class ImportData(object):
+class ImportExcelData(object):
 
     @staticmethod
-    def get_data(sheet_choice):
-        filename = 'Procedury startowe.xlsx'
+    def get_data(filename, sheet_choice):
+        filename = filename
         df = pd.read_excel(filename, sheet_name=f'{sheet_choice}', engine='openpyxl', dtype=object, header=None)
         list_1 = df.values.tolist()
         data = []
@@ -57,7 +57,7 @@ class ConvertedDateTime(object):
 class DataLogs(object):
 
     @staticmethod
-    def log_status_of_checkbutton(listbox, name, value, sheet_name, filename=None):
+    def log_status_from_checkbutton_to_listbox_and_txt_file(listbox, name, value, sheet_name, filename=None):
         current_data = ConvertedDateTime.get_time()
         if value == 1:
             text = f'{current_data} {sheet_name} : Zakończono procedurę: {name}\n'
@@ -75,6 +75,7 @@ class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
 
+        self.excel_file_name = 'Procedury startowe.xlsx'
         self.sheet_1 = 'A'
         self.sheet_2 = 'B'
         self.sheet_3 = 'C'
@@ -208,7 +209,7 @@ class Figure1(object):
         self.scrolltexture.pack()
 
     def add_to_scrolltext(self, sheet_choice, progressbar, label_progressbar):
-        import_data = ImportData.get_data(sheet_choice)
+        import_data = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
         for elem in import_data:
             self.dict_check_status[sheet_choice][elem] = 0
             new_checkbutton = self.add_checkbutton(elem, sheet_choice, progressbar, label_progressbar)
@@ -220,9 +221,8 @@ class Figure1(object):
     def add_checkbutton(self, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
         cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', bg='white', anchor='w', variable=var, onvalue=1, offvalue=0,
-                            command=lambda: [DataLogs().log_status_of_checkbutton(self.listbox_1, elem, var.get(), sheet_choice
-                                                                                  , self.filename
-                                                                                  ),
+                            command=lambda: [DataLogs().log_status_from_checkbutton_to_listbox_and_txt_file(
+                                             self.listbox_1, elem, var.get(), sheet_choice, self.filename),
                                              self.change_color_buttons(cb, var.get()),
                                              self.change_status_checkbutton(elem, var.get(), sheet_choice),
                                              self.check_if_status_completed(sheet_choice),
