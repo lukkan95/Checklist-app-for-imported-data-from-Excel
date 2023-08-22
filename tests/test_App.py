@@ -12,10 +12,10 @@ class Test(unittest.TestCase):
 
 
     def test_get_time(self):
-        assert Main.DataLogs().get_time() == datetime.now().strftime("%d_%m_%Y %H-%M-%S")
+        assert Main.ConvertedDateTime.get_time() == datetime.now().strftime("%d_%m_%Y %H-%M-%S")
 
     def test_create_test_file(self):
-        temp_file = Main.DataLogs().create_text_file()
+        temp_file = Main.DataToTxt().create_text_file()
         with open(temp_file, 'r') as file:
             line = file.readlines()
             assert line[0] != 0

@@ -6,7 +6,7 @@ from tkinter.scrolledtext import ScrolledText
 from datetime import datetime
 
 
-class Importdata(object):
+class ImportData(object):
 
     @staticmethod
     def get_data(sheet_choice):
@@ -22,32 +22,54 @@ class Importdata(object):
         return data
 
 
-class DataLogs(object):
+class DataToTxt(object):
 
-    # def create_text_file(self):
-    #     filename = f'Data_logs_{self.get_time()}.txt'
-    #     if not os.path.isfile(filename):
-    #         with open(filename, 'w') as file:
-    #             file.write(f"Start logging: {self.get_time()}\n")
-    #     return filename
+    def __init__(self):
+        self.filename = None
 
-    def get_time(self):
+    def create_text_file(self):
+        self.filename = f'Data_logs_{ConvertedDateTime.get_time()}.txt'
+        if not os.path.isfile(self.filename):
+            with open(self.filename, 'w') as file:
+                file.write(f"Start logging: {ConvertedDateTime.get_time()}\n")
+        return self.filename
+
+    @staticmethod
+    def add_to_text_file(filename, text):
+        with open(filename, 'a+') as file:
+            file.write(text)
+
+    @staticmethod
+    def delete_txt_file(filename):
+        path = f'{os.path.dirname(os.path.realpath(__file__))}\{filename}'
+        os.remove(path)
+
+
+class ConvertedDateTime(object):
+
+    @staticmethod
+    def get_time():
         now = datetime.now()
         dt_string = now.strftime("%d_%m_%Y %H-%M-%S")
         return dt_string
 
-    def log_status_of_checkbutton(self, listbox, name, value, sheet_name, filename=None):
-        current_data = self.get_time()
+
+class DataLogs(object):
+
+    @staticmethod
+    def log_status_of_checkbutton(listbox, name, value, sheet_name, filename=None):
+        current_data = ConvertedDateTime.get_time()
         if value == 1:
-            listbox.insert('end', f'{current_data} {sheet_name} : Zakończono procedurę: {name}')
+            text = f'{current_data} {sheet_name} : Zakończono procedurę: {name}\n'
+            listbox.insert('end', text)
             listbox.itemconfig('end', fg='green')
-            # with open(filename, 'a+') as file:
-            #     file.write(f'{current_data} {sheet_name} : Zakończono procedurę: {name}\n')
+            DataToTxt.add_to_text_file(filename, text)
+
         else:
-            listbox.insert('end', f'{current_data} {sheet_name} : Anuulowano procedurę: {name}')
+            text = f'{current_data} {sheet_name} : Anuulowano procedurę: {name}\n'
+            listbox.insert('end', text)
             listbox.itemconfig('end', fg='red')
-            # with open(filename, 'a+') as file:
-            #     file.write(f'{current_data} {sheet_name} : Anuulowano procedurę: {name}\n')
+            DataToTxt.add_to_text_file(filename, text)
 
 class Figure1(object):
 
@@ -89,7 +111,6 @@ class Figure1(object):
         self.create_scrolltext(self.p3f)
         self.add_to_scrolltext(self.sheet_3, self.pb3, self.lb3)
 
-
         self.add_button1()
         self.add_button2()
         self.add_button3()
@@ -101,11 +122,9 @@ class Figure1(object):
 
         self.state_active = tk.IntVar(self.root, value=1)
         self.state_inactive = tk.IntVar(self.root, value=0)
-        self.number = 1
 
-        # self.checkbuttons_storage[0]['fg'] = 'green'
-        print(self.checkbuttons_storage[0]['variable'])
-        # self.filename = DataLogs().create_text_file()
+        # print(self.checkbuttons_storage[0]['variable'])
+        self.filename = DataToTxt().create_text_file()
 
     def root_mainloop_start(self):
         self.root.attributes("-topmost", True)
@@ -189,7 +208,7 @@ class Figure1(object):
         self.scrolltexture.pack()
 
     def add_to_scrolltext(self, sheet_choice, progressbar, label_progressbar):
-        import_data = Importdata.get_data(sheet_choice)
+        import_data = ImportData.get_data(sheet_choice)
         for elem in import_data:
             self.dict_check_status[sheet_choice][elem] = 0
             new_checkbutton = self.add_checkbutton(elem, sheet_choice, progressbar, label_progressbar)
@@ -202,7 +221,7 @@ class Figure1(object):
         var = tk.IntVar()
         cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', bg='white', anchor='w', variable=var, onvalue=1, offvalue=0,
                             command=lambda: [DataLogs().log_status_of_checkbutton(self.listbox_1, elem, var.get(), sheet_choice
-                                                                                  # , self.filename
+                                                                                  , self.filename
                                                                                   ),
                                              self.change_color_buttons(cb, var.get()),
                                              self.change_status_checkbutton(elem, var.get(), sheet_choice),
@@ -322,3 +341,5 @@ class Figure1(object):
 if __name__ == '__main__':
     figure = Figure1()
     figure.root_mainloop_start()
+    DataToTxt.delete_txt_file(figure.filename)
+    
