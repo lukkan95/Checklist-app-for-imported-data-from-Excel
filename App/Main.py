@@ -89,7 +89,6 @@ class Figure1(object):
 
         self.checkbuttons_storage = []
 
-
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
 
@@ -143,20 +142,27 @@ class Figure1(object):
 
     def maximize_window(self):
         self.root.state('zoomed')
+        print('funkcja maximize')
         self.bind_key_minimize_window()
 
+
     def minimize_window(self):
+        self.root.state()
         self.root.state('normal')
+        print('funkcja minimize')
         self.bind_key_maximize_window()
+
 
     def bind_key_exit_applicaiton(self):
         self.root.bind('<Escape>', lambda e: self.root.destroy())
 
     def bind_key_maximize_window(self):
         self.root.bind('<Tab>', lambda e: self.maximize_window())
+        print('teraz maximize bind')
 
     def bind_key_minimize_window(self):
         self.root.bind('<Tab>', lambda e: self.minimize_window())
+        print('teraz minimize bind')
 
     def create_dict_check_status(self):
         self.dict_check_status = {self.sheet_1: {},
