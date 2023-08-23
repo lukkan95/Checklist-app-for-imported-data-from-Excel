@@ -127,7 +127,8 @@ class Figure1(object):
         self.state_active = tk.IntVar(self.root, value=1)
         self.state_inactive = tk.IntVar(self.root, value=0)
 
-        self.windows_number = 0
+
+        self.exit_window = ExitWindow()
         # print(self.checkbuttons_storage[0]['variable'])
         self.filename = DataToTxt().create_text_file()
 
@@ -139,23 +140,11 @@ class Figure1(object):
         self.root.protocol('WM_DELETE_WINDOW', self.ask_if_exit)
         self.root.mainloop()
 
-    @staticmethod
-    def center_window_on_screen(root, width, height):
-        ws = root.winfo_screenwidth()
-        hs = root.winfo_screenheight()
-        x = (ws / 2) - (width / 2)
-        y = (hs / 2) - (height / 2)
-        root.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
-
     def ask_if_exit(self):
-
-        if self.windows_number == 0:
-            self.exit_window = ExitWindow()
-            self.windows_number = 1
+        if self.exit_window.check is False:
+            self.exit_window.start()
         else:
             pass
-            self.windows_number = 0
-
 
     def start_parameters(self):
         self.app_width = 1200
@@ -164,6 +153,13 @@ class Figure1(object):
         self.root.resizable(False, False)
         self.root.title('Figure1')
 
+    @staticmethod
+    def center_window_on_screen(root, width, height):
+        ws = root.winfo_screenwidth()
+        hs = root.winfo_screenheight()
+        x = (ws / 2) - (width / 2)
+        y = (hs / 2) - (height / 2)
+        root.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
 
     def maximize_window(self):
         self.root.state('zoomed')
@@ -177,14 +173,16 @@ class Figure1(object):
         DataToTxt.delete_txt_file(self.filename)
         self.root.destroy()
 
-    def bind_key_exit_applicaiton(self):
-        self.root.bind('<Escape>', lambda e: self.ask_if_exit())
+
 
     def bind_key_maximize_window(self):
         self.root.bind('<Tab>', lambda e: self.maximize_window())
 
     def bind_key_minimize_window(self):
         self.root.bind('<Tab>', lambda e: self.minimize_window())
+
+    def bind_key_exit_applicaiton(self):
+        self.root.bind('<Escape>', lambda e: self.ask_if_exit())
 
 
     def create_dict_check_status(self):
@@ -369,6 +367,10 @@ class Figure1(object):
 class ExitWindow(object):
 
     def __init__(self):
+        self.check = False
+
+    def start(self):
+        self.check = True
         self.new_window = tk.Toplevel()
         self.geometry()
         self.title()
@@ -380,8 +382,10 @@ class ExitWindow(object):
         new_window_width = 300
         new_window_height = 150
         Figure1.center_window_on_screen(self.new_window, new_window_width, new_window_height)
+        self.new_window.protocol('WM_DELETE_WINDOW', self.destroy_button)
         self.new_window.resizable(False, False)
         self.new_window.attributes('-topmost', True)
+        self.new_window.grab_set()
 
     def title(self):
         self.new_window.title('Confirm Exit')
@@ -394,9 +398,20 @@ class ExitWindow(object):
         button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: Figure1().exit())
         button.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
 
+    def change_status(self):
+        self.check = False
+
     def cancel_exit_button(self):
-        button = tk.Button(self.new_window, text='No', default='active', command=lambda: self.new_window.destroy())
+        button = tk.Button(self.new_window, text='No', default='active', command=lambda:
+        [
+            self.new_window.destroy(),
+            self.change_status()
+        ])
         button.place(relx=0.55, rely=0.7, relwidth=0.4, relheight=0.2)
+
+    def destroy_button(self):
+        self.check = False
+        self.new_window.destroy()
 
 
 
