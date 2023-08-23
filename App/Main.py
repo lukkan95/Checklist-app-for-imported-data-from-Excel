@@ -133,17 +133,19 @@ class Figure1(object):
         self.root.config(bg='#ff6666')
         self.root.mainloop()
 
-    def center_window_on_screen(self):
-        ws = self.root.winfo_screenwidth()
-        hs = self.root.winfo_screenheight()
-        x = (ws / 2) - (self.app_width / 2)
-        y = (hs / 2) - (self.app_height / 2)
-        self.root.geometry(f'{self.app_width}x{self.app_height}+{int(x)}+{int(y)}')
+    @staticmethod
+    def center_window_on_screen(root, width, height):
+        ws = root.winfo_screenwidth()
+        hs = root.winfo_screenheight()
+        x = (ws / 2) - (width / 2)
+        y = (hs / 2) - (height / 2)
+        root.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
+
 
     def start_parameters(self):
         self.app_width = 1200
         self.app_height = 800
-        self.center_window_on_screen()
+        self.center_window_on_screen(self.root, self.app_width, self.app_height)
         self.root.resizable(False, False)
         self.root.title('Figure1')
 
@@ -156,17 +158,22 @@ class Figure1(object):
         self.root.state('normal')
         self.bind_key_maximize_window()
 
-    def window_exit_confirmation(self):
-        new_window = tk.Toplevel(self.root)
-        new_window.title('Confirm Exit')
-        new_window.geometry('300x300')
-        new_window.attributes('-topmost', True)
-        # self.root.eval(f'tk::PlaceWindow {str(new_window)} center')
-        label = tk.Label(new_window, text='Are Your sure You want to quit?')
-        label.place(relx=0, rely=0, relwidth=1, relheight=1)
+    def exit(self):
+        self.root.destroy()
+
+    # def window_exit_confirmation(self):
+    #     new_window = tk.Toplevel(self.root)
+    #     new_window_width = 300
+    #     new_window_height = 150
+    #     new_window.title('Confirm Exit')
+    #     self.center_window_on_screen(new_window, new_window_width, new_window_height)
+    #     new_window.resizable(False, False)
+    #     new_window.attributes('-topmost', True)
+    #     label = tk.Label(new_window, text='Do you want to quit?')
+    #     label.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     def bind_key_exit_applicaiton(self):
-        self.root.bind('<Escape>', lambda e: self.root.destroy())
+        self.root.bind('<Escape>', lambda e: ExitWindow())
 
     def bind_key_maximize_window(self):
         self.root.bind('<Tab>', lambda e: self.maximize_window())
@@ -317,7 +324,7 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
-        self.window_exit_confirmation()
+        # self.window_exit_confirmation()
         filename = 'Data_logs_21_08_2023 15-34-32.txt'
         with open(filename, 'r') as file:
             lines = file.readlines()
@@ -353,6 +360,37 @@ class Figure1(object):
         self.btn3.place(relx=0.38, rely=0.05, relwidth=0.1, relheight=0.03)
 
 
+class ExitWindow(object):
+
+    def __init__(self):
+        self.new_window = tk.Toplevel()
+        self.geometry()
+        self.title()
+        self.label()
+        self.confirm_exit_button()
+        self.cancel_exit_button()
+
+    def geometry(self):
+        new_window_width = 300
+        new_window_height = 150
+        Figure1.center_window_on_screen(self.new_window, new_window_width, new_window_height)
+        self.new_window.resizable(False, False)
+        self.new_window.attributes('-topmost', True)
+
+    def title(self):
+        self.new_window.title('Confirm Exit')
+
+    def label(self):
+        label = tk.Label(self.new_window, text='Do you want to quit?')
+        label.place(relx=0, rely=0, relwidth=1, relheight=0.6)
+
+    def confirm_exit_button(self):
+        button = tk.Button(self.new_window, text='Yes', default='normal', command= lambda: Figure1().exit())
+        button.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
+
+    def cancel_exit_button(self):
+        button = tk.Button(self.new_window, text='No', default='active', command=lambda: self.new_window.destroy())
+        button.place(relx=0.55, rely=0.7, relwidth=0.4, relheight=0.2)
 
 
 if __name__ == '__main__':
