@@ -88,10 +88,13 @@ class Figure1(object):
         self.page3_frame()
         self.lower_frame()
 
+
         self.checkbuttons_storage = []
 
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
+        # self.bind_key_destroy()
+
 
         self.timer_label()
         self.update_timer_label()
@@ -124,13 +127,16 @@ class Figure1(object):
         self.state_active = tk.IntVar(self.root, value=1)
         self.state_inactive = tk.IntVar(self.root, value=0)
 
+        self.windows_number = 0
         # print(self.checkbuttons_storage[0]['variable'])
         self.filename = DataToTxt().create_text_file()
+
 
     def root_mainloop_start(self):
         self.root.attributes("-topmost", True)
         self.root.title('Rejestrator procedury startowej')
         self.root.config(bg='#ff6666')
+        self.root.protocol('WM_DELETE_WINDOW', self.ask_if_exit)
         self.root.mainloop()
 
     @staticmethod
@@ -140,6 +146,15 @@ class Figure1(object):
         x = (ws / 2) - (width / 2)
         y = (hs / 2) - (height / 2)
         root.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
+
+    def ask_if_exit(self):
+
+        if self.windows_number == 0:
+            self.exit_window = ExitWindow()
+            self.windows_number = 1
+        else:
+            pass
+            self.windows_number = 0
 
 
     def start_parameters(self):
@@ -159,27 +174,18 @@ class Figure1(object):
         self.bind_key_maximize_window()
 
     def exit(self):
+        DataToTxt.delete_txt_file(self.filename)
         self.root.destroy()
 
-    # def window_exit_confirmation(self):
-    #     new_window = tk.Toplevel(self.root)
-    #     new_window_width = 300
-    #     new_window_height = 150
-    #     new_window.title('Confirm Exit')
-    #     self.center_window_on_screen(new_window, new_window_width, new_window_height)
-    #     new_window.resizable(False, False)
-    #     new_window.attributes('-topmost', True)
-    #     label = tk.Label(new_window, text='Do you want to quit?')
-    #     label.place(relx=0, rely=0, relwidth=1, relheight=1)
-
     def bind_key_exit_applicaiton(self):
-        self.root.bind('<Escape>', lambda e: ExitWindow())
+        self.root.bind('<Escape>', lambda e: self.ask_if_exit())
 
     def bind_key_maximize_window(self):
         self.root.bind('<Tab>', lambda e: self.maximize_window())
 
     def bind_key_minimize_window(self):
         self.root.bind('<Tab>', lambda e: self.minimize_window())
+
 
     def create_dict_check_status(self):
         self.dict_check_status = {self.sheet_1: {},
@@ -385,12 +391,14 @@ class ExitWindow(object):
         label.place(relx=0, rely=0, relwidth=1, relheight=0.6)
 
     def confirm_exit_button(self):
-        button = tk.Button(self.new_window, text='Yes', default='normal', command= lambda: Figure1().exit())
+        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: Figure1().exit())
         button.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
 
     def cancel_exit_button(self):
         button = tk.Button(self.new_window, text='No', default='active', command=lambda: self.new_window.destroy())
         button.place(relx=0.55, rely=0.7, relwidth=0.4, relheight=0.2)
+
+
 
 
 if __name__ == '__main__':
