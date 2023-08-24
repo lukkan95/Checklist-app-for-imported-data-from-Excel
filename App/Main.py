@@ -328,17 +328,19 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
-        # self.window_exit_confirmation()
-        filename = 'Data_logs_21_08_2023 15-34-32.txt'
+        filename = 'Data_logs_24_08_2023 15-18-39.txt'
+        print(self.checkbuttons_storage)
         with open(filename, 'r') as file:
             lines = file.readlines()
             for line in lines[1:]:
-                imported_sheet = line.split(' ', 6)[2]
-                imported_state = line.split(' ', 6)[4]
-                imported_activity = (line.split(' ', 6)[6])
-                print(imported_sheet, imported_state, imported_activity)
+                imported_sheet = line.split(' ', 7)[2]
+                imported_state = line.split(' ', 7)[4]
+                imported_number_of_procedure = (line.split(' ', 7)[6])
+                imported_activity = (line.split(' ', 7)[7])
+                # print(imported_sheet, imported_state, imported_activity)
 
                 if imported_state == 'Zakończono':
+                    # print(self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)])
                     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'green'
                     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_active
                     # print(self.checkbuttons_storage[0])
