@@ -89,7 +89,10 @@ class Figure1(object):
         self.lower_frame()
 
 
-        self.checkbuttons_storage = []
+        self.checkbuttons_storage = {f'{str(self.sheet_1)}':[],
+                                     f'{str(self.sheet_2)}': [],
+                                     f'{str(self.sheet_3)}': [],
+                                     }
 
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
@@ -254,7 +257,7 @@ class Figure1(object):
                                              self.check_if_status_completed(sheet_choice),
                                              self.update_progressbar(progressbar, sheet_choice),
                                              self.update_label_progressbar(sheet_choice, label_progressbar)])
-        self.checkbuttons_storage.append(cb)
+        self.checkbuttons_storage[sheet_choice].append(cb)
         return cb
 
     def change_color_buttons(self, elem, value):
@@ -336,29 +339,38 @@ class Figure1(object):
                 imported_sheet = line.split(' ', 7)[2]
                 imported_state = line.split(' ', 7)[4]
                 imported_number_of_procedure = (line.split(' ', 7)[6])
-                imported_activity = (line.split(' ', 7)[7])
-                # print(imported_sheet, imported_state, imported_activity)
-
+                imported_activity = line.split(' ', 7)[7].replace('\n', '')
+                temp_checkbutton = self.checkbuttons_storage[imported_sheet][int(imported_number_of_procedure)-1]
                 if imported_state == 'Zakończono':
-                    # print(self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)])
-                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'green'
-                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_active
-                    # print(self.checkbuttons_storage[0])
-                    # print(self.dict_check_status['A'])
-                    # self.dict_check_status[imported_sheet][imported_activity] = self.state_active
-                    # self.check_if_status_completed(imported_sheet),
-                    # self.update_progressbar(self.pb1, imported_sheet),
-                    # self.update_label_progressbar(imported_sheet, self.lb1)
-
+                    temp_checkbutton['fg'] = 'green'
+                    temp_checkbutton['variable'] = self.state_active
 
                 elif imported_state == 'Anuulowano':
-                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'red'
-                    self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_inactive
-                    # print(self.checkbuttons_storage[0]['variable'])
-                    # self.dict_check_status[imported_sheet][imported_activity] = self.state_inactive
-                    # self.check_if_status_completed(imported_sheet),
-                    # self.update_progressbar(self.pb1, imported_sheet),
-                    # self.update_label_progressbar(imported_sheet, self.lb1)
+                    temp_checkbutton['fg'] = 'red'
+                    temp_checkbutton['variable'] = self.state_inactive
+
+
+
+                # if imported_state == 'Zakończono':
+                #     # print(self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)])
+                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'green'
+                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_active
+                #     # print(self.checkbuttons_storage[0])
+                #     # print(self.dict_check_status['A'])
+                #     # self.dict_check_status[imported_sheet][imported_activity] = self.state_active
+                #     # self.check_if_status_completed(imported_sheet),
+                #     # self.update_progressbar(self.pb1, imported_sheet),
+                #     # self.update_label_progressbar(imported_sheet, self.lb1)
+                #
+                #
+                # elif imported_state == 'Anuulowano':
+                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'red'
+                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_inactive
+                #     # print(self.checkbuttons_storage[0]['variable'])
+                #     # self.dict_check_status[imported_sheet][imported_activity] = self.state_inactive
+                #     # self.check_if_status_completed(imported_sheet),
+                #     # self.update_progressbar(self.pb1, imported_sheet),
+                #     # self.update_label_progressbar(imported_sheet, self.lb1)
 
     def add_button_import_data_from_txt(self):
         self.btn3 = tk.Button(self.root, text='Import data',
