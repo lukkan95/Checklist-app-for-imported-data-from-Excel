@@ -127,13 +127,14 @@ class Figure1(object):
         self.pb1.tkraise()
         self.lb1.tkraise()
 
-        self.state_active = tk.IntVar(self.root, value=1)
-        self.state_inactive = tk.IntVar(self.root, value=0)
 
 
         self.exit_window = ExitWindow()
         # print(self.checkbuttons_storage[0]['variable'])
         self.filename = DataToTxt().create_text_file()
+
+        self.state_active = tk.IntVar(self.root, value=1)
+        self.state_inactive = tk.IntVar(self.root, value=0)
 
 
     def root_mainloop_start(self):
@@ -331,23 +332,36 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
-        filename = 'Data_logs_24_08_2023 15-18-39.txt'
-        print(self.checkbuttons_storage)
+        filename = 'Data_logs_31_08_2023 21-38-57.txt'
+        # print(self.checkbuttons_storage)
         with open(filename, 'r') as file:
+
+
             lines = file.readlines()
             for line in lines[1:]:
+
                 imported_sheet = line.split(' ', 7)[2]
                 imported_state = line.split(' ', 7)[4]
                 imported_number_of_procedure = (line.split(' ', 7)[6])
                 imported_activity = line.split(' ', 7)[7].replace('\n', '')
                 temp_checkbutton = self.checkbuttons_storage[imported_sheet][int(imported_number_of_procedure)-1]
+                print(temp_checkbutton['variable'])
                 if imported_state == 'Zakończono':
-                    temp_checkbutton['fg'] = 'green'
-                    temp_checkbutton['variable'] = self.state_active
+                    # temp_checkbutton['variable'] = self.state_active.get()
+                    # temp_checkbutton['variable'] = self.state_active
+                    self.change_color_buttons(temp_checkbutton, self.state_active.get())
+                    self.change_status_checkbutton(temp_checkbutton, self.state_active.get(), imported_sheet)
+                    # temp_checkbutton['fg'] = 'green'
+
 
                 elif imported_state == 'Anuulowano':
-                    temp_checkbutton['fg'] = 'red'
-                    temp_checkbutton['variable'] = self.state_inactive
+                    # temp_checkbutton['fg'] = 'red'
+                    # temp_checkbutton['variable'] = self.state_inactive
+                    self.change_color_buttons(temp_checkbutton, self.state_inactive.get())
+                    self.change_status_checkbutton(temp_checkbutton, self.state_inactive.get(), imported_sheet)
+
+                print(temp_checkbutton['variable'])
+
 
 
 
@@ -371,7 +385,6 @@ class Figure1(object):
                 #     # self.check_if_status_completed(imported_sheet),
                 #     # self.update_progressbar(self.pb1, imported_sheet),
                 #     # self.update_label_progressbar(imported_sheet, self.lb1)
-
     def add_button_import_data_from_txt(self):
         self.btn3 = tk.Button(self.root, text='Import data',
                               command=lambda: [self.import_data_from_txt()])
