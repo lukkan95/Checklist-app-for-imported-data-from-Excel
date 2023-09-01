@@ -88,15 +88,13 @@ class Figure1(object):
         self.page3_frame()
         self.lower_frame()
 
-
-        self.checkbuttons_storage = {f'{str(self.sheet_1)}':[],
-                                     f'{str(self.sheet_2)}': [],
-                                     f'{str(self.sheet_3)}': [],
+        self.checkbuttons_storage = {f'{str(self.sheet_1)}': {f'var': [], f'checkbutton': []},
+                                     f'{str(self.sheet_2)}': {f'var': [], f'checkbutton': []},
+                                     f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': []},
                                      }
 
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
-        # self.bind_key_destroy()
 
 
         self.timer_label()
@@ -127,14 +125,9 @@ class Figure1(object):
         self.pb1.tkraise()
         self.lb1.tkraise()
 
-
-
         self.exit_window = ExitWindow()
-        # print(self.checkbuttons_storage[0]['variable'])
         self.filename = DataToTxt().create_text_file()
 
-        self.state_active = tk.IntVar(self.root, value=1)
-        self.state_inactive = tk.IntVar(self.root, value=0)
 
 
     def root_mainloop_start(self):
@@ -214,12 +207,12 @@ class Figure1(object):
         self.scrollbar = tk.Scrollbar(self.dfr)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.log = tk.Text(self.dfr, width=30, height=30, takefocus=0)
-        self.scrollbar.config(command=self.log.yview)
+        # self.scrollbar.config(command=self.log.yview)
         self.log.pack(fill='both', expand=1)
-        self.log.config(yscrollcommand=self.scrollbar.set)
+        # self.log.config(yscrollcommand=self.scrollbar.set)
         self.listbox_1 = tk.Listbox(self.log, yscrollcommand=self.scrollbar.set)
         self.listbox_1.pack(side='left', fill='both', expand=1)
-        self.log.config(yscrollcommand=self.listbox_1.yview())
+        # self.log.config(yscrollcommand=self.listbox_1.yview())
 
     def timer_label(self):
         self.clock = tk.Label(self.root, text=self.get_time_to_timer(), font=("Segoe UI", "12"))
@@ -258,7 +251,9 @@ class Figure1(object):
                                              self.check_if_status_completed(sheet_choice),
                                              self.update_progressbar(progressbar, sheet_choice),
                                              self.update_label_progressbar(sheet_choice, label_progressbar)])
-        self.checkbuttons_storage[sheet_choice].append(cb)
+
+        self.checkbuttons_storage[sheet_choice]['checkbutton'].append(cb)
+        self.checkbuttons_storage[sheet_choice]['var'].append(var)
         return cb
 
     def change_color_buttons(self, elem, value):
@@ -332,59 +327,41 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
-        filename = 'Data_logs_31_08_2023 21-38-57.txt'
-        # print(self.checkbuttons_storage)
+        filename = 'Data_logs_01_09_2023 13-46-05.txt'
         with open(filename, 'r') as file:
-
-
             lines = file.readlines()
             for line in lines[1:]:
-
+                DataToTxt.add_to_text_file(self.filename, line)
                 imported_sheet = line.split(' ', 7)[2]
                 imported_state = line.split(' ', 7)[4]
                 imported_number_of_procedure = (line.split(' ', 7)[6])
-                imported_activity = line.split(' ', 7)[7].replace('\n', '')
-                temp_checkbutton = self.checkbuttons_storage[imported_sheet][int(imported_number_of_procedure)-1]
-                print(temp_checkbutton['variable'])
+                # imported_activity = line.split(' ', 7)[7].replace('\n', '')
+                temp_checkbutton = self.checkbuttons_storage[imported_sheet]['checkbutton'][int(imported_number_of_procedure)-1]
+                temp_var = self.checkbuttons_storage[imported_sheet]['var'][int(imported_number_of_procedure)-1]
                 if imported_state == 'Zakończono':
-                    # temp_checkbutton['variable'] = self.state_active.get()
-                    # temp_checkbutton['variable'] = self.state_active
-                    self.change_color_buttons(temp_checkbutton, self.state_active.get())
-                    self.change_status_checkbutton(temp_checkbutton, self.state_active.get(), imported_sheet)
-                    # temp_checkbutton['fg'] = 'green'
-
+                    temp_var.set(1)
+                    self.change_color_buttons(temp_checkbutton, int(temp_var.get()))
+                    self.change_status_checkbutton(temp_checkbutton['text'], int(temp_var.get()), imported_sheet)
 
                 elif imported_state == 'Anuulowano':
-                    # temp_checkbutton['fg'] = 'red'
-                    # temp_checkbutton['variable'] = self.state_inactive
-                    self.change_color_buttons(temp_checkbutton, self.state_inactive.get())
-                    self.change_status_checkbutton(temp_checkbutton, self.state_inactive.get(), imported_sheet)
+                    temp_var.set(0)
+                    self.change_color_buttons(temp_checkbutton, int(temp_var.get()))
+                    self.change_status_checkbutton(temp_checkbutton['text'], int(temp_var.get()), imported_sheet)
 
-                print(temp_checkbutton['variable'])
+        self.update_progressbar(self.pb1, self.sheet_1)
+        self.update_label_progressbar(self.sheet_1, self.lb1)
 
+        self.update_progressbar(self.pb2, self.sheet_2)
+        self.update_label_progressbar(self.sheet_2, self.lb2)
 
+        self.update_progressbar(self.pb3, self.sheet_3)
+        self.update_label_progressbar(self.sheet_3, self.lb3)
 
+        self.tfr.tkraise()
+        self.pb1.tkraise()
+        self.lb1.tkraise()
+        self.check_if_status_completed(self.sheet_1)
 
-                # if imported_state == 'Zakończono':
-                #     # print(self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)])
-                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'green'
-                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_active
-                #     # print(self.checkbuttons_storage[0])
-                #     # print(self.dict_check_status['A'])
-                #     # self.dict_check_status[imported_sheet][imported_activity] = self.state_active
-                #     # self.check_if_status_completed(imported_sheet),
-                #     # self.update_progressbar(self.pb1, imported_sheet),
-                #     # self.update_label_progressbar(imported_sheet, self.lb1)
-                #
-                #
-                # elif imported_state == 'Anuulowano':
-                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['fg'] = 'red'
-                #     self.checkbuttons_storage[self.combine_number_with_sheet(imported_sheet)]['variable'] = self.state_inactive
-                #     # print(self.checkbuttons_storage[0]['variable'])
-                #     # self.dict_check_status[imported_sheet][imported_activity] = self.state_inactive
-                #     # self.check_if_status_completed(imported_sheet),
-                #     # self.update_progressbar(self.pb1, imported_sheet),
-                #     # self.update_label_progressbar(imported_sheet, self.lb1)
     def add_button_import_data_from_txt(self):
         self.btn3 = tk.Button(self.root, text='Import data',
                               command=lambda: [self.import_data_from_txt()])
