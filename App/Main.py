@@ -1,4 +1,5 @@
 import os
+from tkinter import filedialog
 from tkinter.ttk import Progressbar
 import pandas as pd
 import tkinter as tk
@@ -327,7 +328,8 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
-        filename = 'Data_logs_01_09_2023 13-46-05.txt'
+        # filename = 'Data_logs_01_09_2023 13-46-05.txt'
+        filename = Figure1.choose_csv()
         with open(filename, 'r') as file:
             lines = file.readlines()
             for line in lines[1:]:
@@ -361,6 +363,11 @@ class Figure1(object):
         self.pb1.tkraise()
         self.lb1.tkraise()
         self.check_if_status_completed(self.sheet_1)
+
+    @staticmethod
+    def choose_csv():
+        imported_file = filedialog.askopenfilename(initialdir=os.getcwd(), filetypes=(("txt files", "*.txt"), ("All files", "*.*")))
+        return imported_file
 
     def add_button_import_data_from_txt(self):
         self.btn3 = tk.Button(self.root, text='Import data',
