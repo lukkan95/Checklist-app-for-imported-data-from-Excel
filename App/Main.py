@@ -64,13 +64,14 @@ class DataLogs(object):
             text = f'{current_data} {sheet_name} : Zakończono procedurę: {name}\n'
             listbox.insert('end', text)
             listbox.itemconfig('end', fg='green')
-            DataToTxt.add_to_text_file(filename, text)
 
         else:
             text = f'{current_data} {sheet_name} : Anuulowano procedurę: {name}\n'
             listbox.insert('end', text)
             listbox.itemconfig('end', fg='red')
-            DataToTxt.add_to_text_file(filename, text)
+
+        listbox.see('end')
+        DataToTxt.add_to_text_file(filename, text)
 
 class Figure1(object):
 
@@ -208,12 +209,9 @@ class Figure1(object):
         self.scrollbar = tk.Scrollbar(self.dfr)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.log = tk.Text(self.dfr, width=30, height=30, takefocus=0)
-        # self.scrollbar.config(command=self.log.yview)
         self.log.pack(fill='both', expand=1)
-        # self.log.config(yscrollcommand=self.scrollbar.set)
         self.listbox_1 = tk.Listbox(self.log, yscrollcommand=self.scrollbar.set)
         self.listbox_1.pack(side='left', fill='both', expand=1)
-        # self.log.config(yscrollcommand=self.listbox_1.yview())
 
     def timer_label(self):
         self.clock = tk.Label(self.root, text=self.get_time_to_timer(), font=("Segoe UI", "12"))
@@ -328,7 +326,6 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
-        # filename = 'Data_logs_01_09_2023 13-46-05.txt'
         filename = Figure1.choose_csv()
         with open(filename, 'r') as file:
             lines = file.readlines()
