@@ -15,6 +15,7 @@ class ImportExcelData(object):
         df = pd.read_excel(filename, sheet_name=f'{sheet_choice}', engine='openpyxl', dtype=object, header=None)
         list_1 = df.values.tolist()
         data = []
+        # tools = []
         for elem in list_1[1:]:
             if str(elem[1]) == 'nan' or str(elem[0]) == 'nan':
                 continue
@@ -85,8 +86,8 @@ class Figure1(object):
         self.root = root
         self.start_parameters()
         self.create_dict_check_status()
-        self.page2_frame()
         self.page1_frame()
+        self.page2_frame()
         self.page3_frame()
         self.lower_frame()
 
@@ -98,24 +99,23 @@ class Figure1(object):
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
 
-
         self.timer_label()
         self.update_timer_label()
 
         self.pb1 = self.progressbar()
         self.lb1 = self.label_progressbar(self.sheet_1)
-        self.create_scrolltext(self.tfr)
+        self.create_list_of_procedures(self.tfr)
         self.add_to_scrolltext(self.sheet_1, self.pb1, self.lb1)
         self.scrollbar_lower_frame()
 
         self.pb2 = self.progressbar()
         self.lb2 = self.label_progressbar(self.sheet_2)
-        self.create_scrolltext(self.p2f)
+        self.create_list_of_procedures(self.p2f)
         self.add_to_scrolltext(self.sheet_2, self.pb2, self.lb2)
 
         self.pb3 = self.progressbar()
         self.lb3 = self.label_progressbar(self.sheet_3)
-        self.create_scrolltext(self.p3f)
+        self.create_list_of_procedures(self.p3f)
         self.add_to_scrolltext(self.sheet_3, self.pb3, self.lb3)
 
         self.add_button1()
@@ -208,10 +208,9 @@ class Figure1(object):
     def scrollbar_lower_frame(self):
         self.scrollbar = tk.Scrollbar(self.dfr)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.log = tk.Text(self.dfr, width=30, height=30, takefocus=0)
-        self.log.pack(fill='both', expand=1)
-        self.listbox_1 = tk.Listbox(self.log, yscrollcommand=self.scrollbar.set)
+        self.listbox_1 = tk.Listbox(self.dfr, yscrollcommand=self.scrollbar.set)
         self.listbox_1.pack(side='left', fill='both', expand=1)
+        self.scrollbar.config(command=self.listbox_1.yview)
 
     def timer_label(self):
         self.clock = tk.Label(self.root, text=self.get_time_to_timer(), font=("Segoe UI", "12"))
@@ -226,7 +225,7 @@ class Figure1(object):
         dt_string = now.strftime("%H : %M : %S")
         return dt_string
 
-    def create_scrolltext(self, root):
+    def create_list_of_procedures(self, root):
         self.scrolltexture = ScrolledText(root)
         self.scrolltexture.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -237,12 +236,16 @@ class Figure1(object):
             new_checkbutton = self.add_checkbutton(elem, sheet_choice, progressbar, label_progressbar)
             self.scrolltexture['state'] = 'normal'
             self.scrolltexture.window_create('end', window=new_checkbutton)
-            self.scrolltexture.insert('end', '\n')
+            signs_length = len(new_checkbutton['text'])
+            sign_center = (80 - signs_length) * ' '
+            tools = f'{sign_center}bekabeka'
+            self.scrolltexture.insert('insert', tools)
+            self.scrolltexture.insert('end', '\n\n')
             self.scrolltexture['state'] = 'disabled'
 
     def add_checkbutton(self, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
-        cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', bg='white', anchor='w', variable=var, onvalue=1, offvalue=0,
+        cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', border=0.5, bg='white', anchor='w', variable=var, onvalue=1, offvalue=0,
                             command=lambda: [DataLogs().log_status_from_checkbutton_to_listbox_and_txt_file(
                                              self.listbox_1, elem, var.get(), sheet_choice, self.filename),
                                              self.change_color_buttons(cb, var.get()),
