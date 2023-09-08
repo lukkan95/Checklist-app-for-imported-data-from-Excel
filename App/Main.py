@@ -1,9 +1,9 @@
 import os
-from tkinter import filedialog
+from tkinter import filedialog, Canvas
 from tkinter.ttk import Progressbar
 import pandas as pd
 import tkinter as tk
-from tkinter.scrolledtext import ScrolledText
+# from tkinter.scrolledtext import ScrolledText
 from datetime import datetime
 
 
@@ -15,12 +15,17 @@ class ImportExcelData(object):
         df = pd.read_excel(filename, sheet_name=f'{sheet_choice}', engine='openpyxl', dtype=object, header=None)
         list_1 = df.values.tolist()
         data = []
+        tools = []
         for elem in list_1[1:]:
             if str(elem[1]) == 'nan' or str(elem[0]) == 'nan':
                 continue
             else:
                 data.append(f'{elem[0]} {elem[1]}')
-        return data
+                if str(elem[3]) == 'nan':
+                    tools.append('Narzędzia: -')
+                else:
+                    tools.append(f'Narzędzia: {elem[3]}')
+        return data, tools
 
 
 class DataToTxt(object):
@@ -73,10 +78,10 @@ class DataLogs(object):
         listbox.see('end')
         DataToTxt.add_to_text_file(filename, text)
 
+
 class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
-
 
         self.excel_file_name = 'Procedury startowe.xlsx'
         self.sheet_1 = 'A'
@@ -103,33 +108,29 @@ class Figure1(object):
 
         self.pb1 = self.progressbar()
         self.lb1 = self.label_progressbar(self.sheet_1)
-        self.create_list_of_procedures(self.tfr)
-        self.add_to_scrolltext(self.sheet_1, self.pb1, self.lb1)
+        self.create_frame_with_data(self.p1f, self.sheet_1, self.pb1, self.lb1)
+
         self.scrollbar_lower_frame()
 
         self.pb2 = self.progressbar()
         self.lb2 = self.label_progressbar(self.sheet_2)
-        self.create_list_of_procedures(self.p2f)
-        self.add_to_scrolltext(self.sheet_2, self.pb2, self.lb2)
+        self.create_frame_with_data(self.p2f, self.sheet_2, self.pb2, self.lb2)
 
         self.pb3 = self.progressbar()
         self.lb3 = self.label_progressbar(self.sheet_3)
-        self.create_list_of_procedures(self.p3f)
-        self.add_to_scrolltext(self.sheet_3, self.pb3, self.lb3)
+        self.create_frame_with_data(self.p3f, self.sheet_3, self.pb3, self.lb3)
 
         self.add_button1()
         self.add_button2()
         self.add_button3()
         self.add_button_import_data_from_txt()
 
-        self.tfr.tkraise()
+        self.p1f.tkraise()
         self.pb1.tkraise()
         self.lb1.tkraise()
 
         self.exit_window = ExitWindow()
         self.filename = DataToTxt().create_text_file()
-
-
 
     def root_mainloop_start(self):
         self.root.attributes("-topmost", True)
@@ -145,9 +146,8 @@ class Figure1(object):
             pass
 
     def start_parameters(self):
-        self.app_width = 1200
-        self.app_height = 800
-        self.center_window_on_screen(self.root, self.app_width, self.app_height)
+        self.center_window_on_screen(self.root, width=1200, height=800)
+        self.root.columnconfigure(1, weight=1)
         self.root.resizable(False, False)
         self.root.title('Figure1')
 
@@ -171,8 +171,6 @@ class Figure1(object):
         DataToTxt.delete_txt_file(self.filename)
         self.root.destroy()
 
-
-
     def bind_key_maximize_window(self):
         self.root.bind('<Tab>', lambda e: self.maximize_window())
 
@@ -182,15 +180,14 @@ class Figure1(object):
     def bind_key_exit_applicaiton(self):
         self.root.bind('<Escape>', lambda e: self.ask_if_exit())
 
-
     def create_dict_check_status(self):
         self.dict_check_status = {self.sheet_1: {},
                                   self.sheet_2: {},
                                   self.sheet_3: {}}
 
     def page1_frame(self):
-        self.tfr = tk.Frame(self.root, width=0.1, height=0.1)
-        self.tfr.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
+        self.p1f = tk.Frame(self.root, width=0.1, height=0.1)
+        self.p1f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
 
     def page2_frame(self):
         self.p2f = tk.Frame(self.root, width=0.1, height=0.1, bg='yellow')
@@ -219,35 +216,46 @@ class Figure1(object):
         self.clock.config(text=self.get_time_to_timer())
         self.clock.after(1000, self.update_timer_label)
 
-    def get_time_to_timer(self):
+    @staticmethod
+    def get_time_to_timer():
         now = datetime.now()
         dt_string = now.strftime("%H : %M : %S")
         return dt_string
 
-    def create_list_of_procedures(self, root):
-        self.scrolltexture = ScrolledText(root)
-        self.scrolltexture.place(relx=0, rely=0, relwidth=1, relheight=1)
-
-    def add_to_scrolltext(self, sheet_choice, progressbar, label_progressbar):
-        import_data = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
-        for elem in import_data:
+    def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
+        my_canvas = Canvas(root, bg='white')
+        my_canvas.pack(side='left', fill='both', expand=1)
+        second_frame = tk.Frame(my_canvas, bg='white')
+        second_frame.place(relx=0, rely=0, relheight=1, relwidth=1)
+        second_frame.bind("<Configure>", lambda e: my_canvas.configure(scrollregion=my_canvas.bbox('all')))
+        second_frame_id = my_canvas.create_window((0, 0), window=second_frame, anchor='nw')
+        my_canvas.bind('<Configure>', lambda e: my_canvas.itemconfigure(second_frame_id, width=e.width))
+        second_frame.columnconfigure(1, weight=1)
+        import_data, import_tools = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
+        i = 0
+        for elem, tool in zip(import_data, import_tools):
             self.dict_check_status[sheet_choice][elem] = 0
-            new_checkbutton = self.add_checkbutton(elem, sheet_choice, progressbar, label_progressbar)
-            self.scrolltexture['state'] = 'normal'
-            self.scrolltexture.window_create('end', window=new_checkbutton)
-            self.scrolltexture.insert('end', '\n\n')
-            self.scrolltexture['state'] = 'disabled'
+            new_checkbutton = self.add_checkbutton(second_frame, elem, sheet_choice, progressbar,
+                                                   label_progressbar)
+            new_checkbutton.grid(row=i, column=0, pady=5, sticky='w')
+            new_lb = tk.Label(second_frame, bg='white', text=f'{tool}')
+            new_lb.grid(row=i, column=1, pady=5, sticky='w', padx=50)
+            i += 1
+        self.scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview)
+        self.scr.pack(side='right', fill='y')
+        my_canvas.configure(yscrollcommand=self.scr.set)
 
-    def add_checkbutton(self, elem, sheet_choice, progressbar, label_progressbar):
+    def add_checkbutton(self, root, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
-        cb = tk.Checkbutton(self.scrolltexture, text=f'{elem}', border=0.5, bg='white', anchor='w', variable=var, onvalue=1, offvalue=0,
+        cb = tk.Checkbutton(root, text=f'{elem}', bg='white', anchor='w', variable=var, onvalue=1,
+                            offvalue=0,
                             command=lambda: [DataLogs().log_status_from_checkbutton_to_listbox_and_txt_file(
-                                             self.listbox_1, elem, var.get(), sheet_choice, self.filename),
-                                             self.change_color_buttons(cb, var.get()),
-                                             self.change_status_checkbutton(elem, var.get(), sheet_choice),
-                                             self.check_if_status_completed(sheet_choice),
-                                             self.update_progressbar(progressbar, sheet_choice),
-                                             self.update_label_progressbar(sheet_choice, label_progressbar)])
+                                self.listbox_1, elem, var.get(), sheet_choice, self.filename),
+                                self.change_color_buttons(cb, var.get()),
+                                self.change_status_checkbutton(elem, var.get(), sheet_choice),
+                                self.check_if_status_completed(sheet_choice),
+                                self.update_progressbar(progressbar, sheet_choice),
+                                self.update_label_progressbar(sheet_choice, label_progressbar)])
 
         self.checkbuttons_storage[sheet_choice]['checkbutton'].append(cb)
         self.checkbuttons_storage[sheet_choice]['var'].append(var)
@@ -276,45 +284,48 @@ class Figure1(object):
         return progressbar
 
     def update_progressbar(self, progressbar, sheet):
-        progressbar.configure(value=round((sum(self.dict_check_status[sheet].values()) / len(self.dict_check_status[sheet])) * 100))
+        progressbar.configure(
+            value=round((sum(self.dict_check_status[sheet].values()) / len(self.dict_check_status[sheet])) * 100))
 
     def label_progressbar(self, sheet):
         try:
-            text = f'Wykonano {sum(self.dict_check_status[sheet].values())} z {len(self.dict_check_status[sheet])} zadań - {round((sum(self.dict_check_status[sheet].values())/len(self.dict_check_status[sheet]))*100)}%'
+            text = f'Wykonano {sum(self.dict_check_status[sheet].values())} z {len(self.dict_check_status[sheet])} zadań - {round((sum(self.dict_check_status[sheet].values()) / len(self.dict_check_status[sheet])) * 100)}%'
             value_label = tk.Label(self.root, text=text, bg="#ff6666", font=("Segoe UI", "10"))
             value_label.place(relx=0.4, rely=0.66, relwidth=0.2, relheight=0.03)
         except:
-            value_label = tk.Label(self.root, text='Procedury nierozpoczęte',bg="#ff6666", font=("Segoe UI", "10"))
+            value_label = tk.Label(self.root, text='Procedury nierozpoczęte', bg="#ff6666", font=("Segoe UI", "10"))
             value_label.place(relx=0.4, rely=0.66, relwidth=0.2, relheight=0.03)
         return value_label
 
     def update_label_progressbar(self, sheet, label_progressbar):
-        label_progressbar.configure(text=f'Wykonano {sum(self.dict_check_status[sheet].values())} z {len(self.dict_check_status[sheet])} zadań - {round((sum(self.dict_check_status[sheet].values())/len(self.dict_check_status[sheet]))*100)}%')
+        label_progressbar.configure(
+            text=f'Wykonano {sum(self.dict_check_status[sheet].values())} z {len(self.dict_check_status[sheet])} zadań - {round((sum(self.dict_check_status[sheet].values()) / len(self.dict_check_status[sheet])) * 100)}%')
         label_progressbar.update()
         if sum(self.dict_check_status[sheet].values()) == len(self.dict_check_status[sheet]):
             label_progressbar.configure(bg='#4dffa6')
         else:
             label_progressbar.configure(bg='#ff6666')
 
-
     def add_button1(self):
-        self.btn1 = tk.Button(self.root, text=self.sheet_1, command=lambda: [self.tfr.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(), self.check_if_status_completed(self.sheet_1),  self.update_progressbar(self.pb1, self.sheet_1)])
-        self.btn1.place(relx=0.05, rely=0.05, relwidth=0.1, relheight=0.03)
-
+        btn1 = tk.Button(self.root, text=self.sheet_1,
+                              command=lambda: [self.p1f.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(),
+                                               self.check_if_status_completed(self.sheet_1)])
+        btn1.place(relx=0.05, rely=0.05, relwidth=0.1, relheight=0.03)
 
     def add_button2(self):
-        self.btn2 = tk.Button(self.root, text=self.sheet_2,
+        btn2 = tk.Button(self.root, text=self.sheet_2,
                               command=lambda: [self.p2f.tkraise(), self.pb2.tkraise(), self.lb2.tkraise(),
                                                self.check_if_status_completed(self.sheet_2)])
-        self.btn2.place(relx=0.16, rely=0.05, relwidth=0.1, relheight=0.03)
+        btn2.place(relx=0.16, rely=0.05, relwidth=0.1, relheight=0.03)
 
     def add_button3(self):
-        self.btn3 = tk.Button(self.root, text=self.sheet_3,
+        btn3 = tk.Button(self.root, text=self.sheet_3,
                               command=lambda: [self.p3f.tkraise(), self.pb3.tkraise(), self.lb3.tkraise(),
                                                self.check_if_status_completed(self.sheet_3)])
-        self.btn3.place(relx=0.27, rely=0.05, relwidth=0.1, relheight=0.03)
+        btn3.place(relx=0.27, rely=0.05, relwidth=0.1, relheight=0.03)
 
-    def combine_number_with_sheet(self, arg):
+    @staticmethod
+    def combine_number_with_sheet(arg):
         if arg == 'A':
             arg = 0
         elif arg == 'B':
@@ -333,8 +344,9 @@ class Figure1(object):
                 imported_state = line.split(' ', 7)[4]
                 imported_number_of_procedure = (line.split(' ', 7)[6])
                 # imported_activity = line.split(' ', 7)[7].replace('\n', '')
-                temp_checkbutton = self.checkbuttons_storage[imported_sheet]['checkbutton'][int(imported_number_of_procedure)-1]
-                temp_var = self.checkbuttons_storage[imported_sheet]['var'][int(imported_number_of_procedure)-1]
+                temp_checkbutton = self.checkbuttons_storage[imported_sheet]['checkbutton'][
+                    int(imported_number_of_procedure) - 1]
+                temp_var = self.checkbuttons_storage[imported_sheet]['var'][int(imported_number_of_procedure) - 1]
                 if imported_state == 'Zakończono':
                     temp_var.set(1)
                     self.change_color_buttons(temp_checkbutton, int(temp_var.get()))
@@ -354,14 +366,15 @@ class Figure1(object):
         self.update_progressbar(self.pb3, self.sheet_3)
         self.update_label_progressbar(self.sheet_3, self.lb3)
 
-        self.tfr.tkraise()
+        self.p1f.tkraise()
         self.pb1.tkraise()
         self.lb1.tkraise()
         self.check_if_status_completed(self.sheet_1)
 
     @staticmethod
     def choose_csv():
-        imported_file = filedialog.askopenfilename(initialdir=os.getcwd(), filetypes=(("txt files", "*.txt"), ("All files", "*.*")))
+        imported_file = filedialog.askopenfilename(initialdir=os.getcwd(),
+                                                   filetypes=(("txt files", "*.txt"), ("All files", "*.*")))
         return imported_file
 
     def add_button_import_data_from_txt(self):
@@ -420,10 +433,7 @@ class ExitWindow(object):
         self.new_window.destroy()
 
 
-
-
 if __name__ == '__main__':
     figure = Figure1()
     figure.root_mainloop_start()
     DataToTxt.delete_txt_file(figure.filename)
-    
