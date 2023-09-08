@@ -230,6 +230,7 @@ class Figure1(object):
         second_frame.bind("<Configure>", lambda e: my_canvas.configure(scrollregion=my_canvas.bbox('all')))
         second_frame_id = my_canvas.create_window((0, 0), window=second_frame, anchor='nw')
         my_canvas.bind('<Configure>', lambda e: my_canvas.itemconfigure(second_frame_id, width=e.width))
+        second_frame.columnconfigure(0, weight=1)
         second_frame.columnconfigure(1, weight=1)
         import_data, import_tools = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
         i = 0
