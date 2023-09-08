@@ -15,7 +15,6 @@ class ImportExcelData(object):
         df = pd.read_excel(filename, sheet_name=f'{sheet_choice}', engine='openpyxl', dtype=object, header=None)
         list_1 = df.values.tolist()
         data = []
-        # tools = []
         for elem in list_1[1:]:
             if str(elem[1]) == 'nan' or str(elem[0]) == 'nan':
                 continue
@@ -236,10 +235,6 @@ class Figure1(object):
             new_checkbutton = self.add_checkbutton(elem, sheet_choice, progressbar, label_progressbar)
             self.scrolltexture['state'] = 'normal'
             self.scrolltexture.window_create('end', window=new_checkbutton)
-            signs_length = len(new_checkbutton['text'])
-            sign_center = (80 - signs_length) * ' '
-            tools = f'{sign_center}bekabeka'
-            self.scrolltexture.insert('insert', tools)
             self.scrolltexture.insert('end', '\n\n')
             self.scrolltexture['state'] = 'disabled'
 
@@ -303,7 +298,7 @@ class Figure1(object):
 
 
     def add_button1(self):
-        self.btn1 = tk.Button(self.root, text=self.sheet_1, command=lambda: [self.tfr.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(), self.check_if_status_completed(self.sheet_1),  self.update_progressbar(self.pb1, self.sheet_1), self.update_label_progressbar(self.sheet_1, self.lb1)])
+        self.btn1 = tk.Button(self.root, text=self.sheet_1, command=lambda: [self.tfr.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(), self.check_if_status_completed(self.sheet_1),  self.update_progressbar(self.pb1, self.sheet_1)])
         self.btn1.place(relx=0.05, rely=0.05, relwidth=0.1, relheight=0.03)
 
 
