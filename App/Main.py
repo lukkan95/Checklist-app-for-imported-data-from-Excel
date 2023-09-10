@@ -22,9 +22,9 @@ class ImportExcelData(object):
             else:
                 data.append(f'{elem[0]} {elem[1]}')
                 if str(elem[3]) == 'nan':
-                    tools.append('Narzędzia: -')
+                    tools.append('-')
                 else:
-                    tools.append(f'Narzędzia: {elem[3]}')
+                    tools.append(f'{elem[3]}')
         return data, tools
 
 
@@ -83,7 +83,7 @@ class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
 
-        self.excel_file_name = 'Procedury startowe.xlsx'
+        self.excel_file_name = 'dist/Procedury startowe.xlsx'
         self.sheet_1 = 'A'
         self.sheet_2 = 'B'
         self.sheet_3 = 'C'
@@ -222,6 +222,9 @@ class Figure1(object):
         dt_string = now.strftime("%H : %M : %S")
         return dt_string
 
+    def bind_mousewheel(self, root, event):
+        root.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
         my_canvas = Canvas(root, bg='white')
         my_canvas.pack(side='left', fill='both', expand=1)
@@ -233,22 +236,27 @@ class Figure1(object):
         second_frame.columnconfigure(0, weight=1)
         second_frame.columnconfigure(1, weight=1)
         import_data, import_tools = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
-        i = 0
+        label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=("Segoe UI", "12"))
+        label_procedure.grid(row=0, column=0, sticky='news', pady=0)
+        tool_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Potrzebne narzędzia', font=("Segoe UI", "12"))
+        tool_procedure.grid(row=0, column=1, sticky='news', pady=0)
+        i = 1
         for elem, tool in zip(import_data, import_tools):
             self.dict_check_status[sheet_choice][elem] = 0
             new_checkbutton = self.add_checkbutton(second_frame, elem, sheet_choice, progressbar,
                                                    label_progressbar)
-            new_checkbutton.grid(row=i, column=0, pady=5, sticky='w')
-            new_lb = tk.Label(second_frame, bg='white', text=f'{tool}')
-            new_lb.grid(row=i, column=1, pady=5, sticky='w', padx=50)
+            new_checkbutton.grid(row=i, column=0, pady=10, sticky='news')
+            new_lb = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}')
+            new_lb.grid(row=i, column=1, pady=10, sticky='news')
             i += 1
+
         self.scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview)
         self.scr.pack(side='right', fill='y')
         my_canvas.configure(yscrollcommand=self.scr.set)
 
     def add_checkbutton(self, root, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
-        cb = tk.Checkbutton(root, text=f'{elem}', bg='white', anchor='w', variable=var, onvalue=1,
+        cb = tk.Checkbutton(root, bg='#E8E8E8', text=f'{elem}', anchor='w', variable=var, onvalue=1,
                             offvalue=0,
                             command=lambda: [DataLogs().log_status_from_checkbutton_to_listbox_and_txt_file(
                                 self.listbox_1, elem, var.get(), sheet_choice, self.filename),
