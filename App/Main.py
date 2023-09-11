@@ -186,15 +186,15 @@ class Figure1(object):
                                   self.sheet_3: {}}
 
     def page1_frame(self):
-        self.p1f = tk.Frame(self.root, width=0.1, height=0.1)
+        self.p1f = tk.Frame(self.root)
         self.p1f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
 
     def page2_frame(self):
-        self.p2f = tk.Frame(self.root, width=0.1, height=0.1, bg='yellow')
+        self.p2f = tk.Frame(self.root, bg='yellow')
         self.p2f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
 
     def page3_frame(self):
-        self.p3f = tk.Frame(self.root, width=0.1, height=0.1, bg='green')
+        self.p3f = tk.Frame(self.root, bg='green')
         self.p3f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
 
     def lower_frame(self):
@@ -229,24 +229,24 @@ class Figure1(object):
         my_canvas = Canvas(root, bg='white')
         my_canvas.pack(side='left', fill='both', expand=1)
         second_frame = tk.Frame(my_canvas, bg='white')
-        second_frame.place(relx=0, rely=0, relheight=1, relwidth=1)
+        second_frame.place(x=0, y=0)
         second_frame.bind("<Configure>", lambda e: my_canvas.configure(scrollregion=my_canvas.bbox('all')))
         second_frame_id = my_canvas.create_window((0, 0), window=second_frame, anchor='nw')
         my_canvas.bind('<Configure>', lambda e: my_canvas.itemconfigure(second_frame_id, width=e.width))
         second_frame.columnconfigure(0, weight=1)
-        second_frame.columnconfigure(1, weight=1)
+        second_frame.columnconfigure(1, weight=5)
         import_data, import_tools = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
         label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=("Segoe UI", "12"))
-        label_procedure.grid(row=0, column=0, sticky='news', pady=0)
+        label_procedure.grid(row=0, column=0, sticky='news')
         tool_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Potrzebne narzędzia', font=("Segoe UI", "12"))
-        tool_procedure.grid(row=0, column=1, sticky='news', pady=0)
+        tool_procedure.grid(row=0, column=1, sticky='news')
         i = 1
         for elem, tool in zip(import_data, import_tools):
             self.dict_check_status[sheet_choice][elem] = 0
             new_checkbutton = self.add_checkbutton(second_frame, elem, sheet_choice, progressbar,
                                                    label_progressbar)
             new_checkbutton.grid(row=i, column=0, pady=10, sticky='news')
-            new_lb = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}')
+            new_lb = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}', anchor='w')
             new_lb.grid(row=i, column=1, pady=10, sticky='news')
             i += 1
 
