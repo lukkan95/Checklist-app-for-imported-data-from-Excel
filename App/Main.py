@@ -83,7 +83,7 @@ class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
 
-        self.excel_file_name = 'dist/Procedury startowe.xlsx'
+        self.excel_file_name = 'Procedury startowe.xlsx'
         self.sheet_1 = 'A'
         self.sheet_2 = 'B'
         self.sheet_3 = 'C'
