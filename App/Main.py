@@ -1,4 +1,5 @@
 import os
+import sys
 from tkinter import filedialog, Canvas
 from tkinter.ttk import Progressbar
 import pandas as pd
@@ -15,6 +16,7 @@ class ImportExcelData(object):
         df = pd.read_excel(filename, sheet_name=f'{sheet_choice}', engine='openpyxl', dtype=object, header=None)
         list_1 = df.values.tolist()
         data = []
+        employees = []
         tools = []
         for elem in list_1[1:]:
             if str(elem[1]) == 'nan' or str(elem[0]) == 'nan':
@@ -23,9 +25,18 @@ class ImportExcelData(object):
                 data.append(f'{elem[0]} {elem[1]}')
                 if str(elem[3]) == 'nan':
                     tools.append('-')
+                    if str(elem[2]) == 'nan':
+                        employees.append('-')
+                    else:
+                        employees.append(f'{elem[2]}')
+
                 else:
                     tools.append(f'{elem[3]}')
-        return data, tools
+                    if str(elem[2]) == 'nan':
+                        employees.append('-')
+                    else:
+                        employees.append(f'{elem[2]}')
+        return data, tools, employees
 
 
 class DataToTxt(object):
@@ -83,7 +94,7 @@ class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
 
-        self.excel_file_name = 'Procedury startowe.xlsx'
+        self.excel_file_name = 'Procedury-startowe.xlsx'
         self.sheet_1 = 'A'
         self.sheet_2 = 'B'
         self.sheet_3 = 'C'
@@ -98,6 +109,11 @@ class Figure1(object):
         self.checkbuttons_storage = {f'{str(self.sheet_1)}': {f'var': [], f'checkbutton': []},
                                      f'{str(self.sheet_2)}': {f'var': [], f'checkbutton': []},
                                      f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': []},
+                                     }
+
+        self.comments_storage = {f'{str(self.sheet_1)}': {},
+                                 f'{str(self.sheet_2)}': {},
+                                 f'{str(self.sheet_3)}': {},
                                      }
 
         self.bind_key_maximize_window()
@@ -146,7 +162,7 @@ class Figure1(object):
             pass
 
     def start_parameters(self):
-        self.center_window_on_screen(self.root, width=1200, height=800)
+        self.center_window_on_screen(self.root, width=1600, height=800)
         self.root.columnconfigure(1, weight=1)
         self.root.resizable(False, False)
         self.root.title('Figure1')
@@ -168,7 +184,7 @@ class Figure1(object):
         self.bind_key_maximize_window()
 
     def exit(self):
-        DataToTxt.delete_txt_file(self.filename)
+        # DataToTxt.delete_txt_file(self.filename)
         self.root.destroy()
 
     def bind_key_maximize_window(self):
@@ -225,7 +241,11 @@ class Figure1(object):
     def bind_mousewheel(self, root, event):
         root.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
+    def storage_comments(self):
+        pass
+
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
+
         my_canvas = Canvas(root, bg='white')
         my_canvas.pack(side='left', fill='both', expand=1)
         second_frame = tk.Frame(my_canvas, bg='white')
@@ -233,22 +253,44 @@ class Figure1(object):
         second_frame.bind("<Configure>", lambda e: my_canvas.configure(scrollregion=my_canvas.bbox('all')))
         second_frame_id = my_canvas.create_window((0, 0), window=second_frame, anchor='nw')
         my_canvas.bind('<Configure>', lambda e: my_canvas.itemconfigure(second_frame_id, width=e.width))
+
         second_frame.columnconfigure(0, weight=1)
-        second_frame.columnconfigure(1, weight=5)
-        import_data, import_tools = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
+        second_frame.columnconfigure(1, weight=2)
+        second_frame.columnconfigure(2, weight=5)
+        second_frame.columnconfigure(3, weight=5)
+
+        import_data, import_tools, import_employees = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
+
         label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=("Segoe UI", "12"))
         label_procedure.grid(row=0, column=0, sticky='news')
+
         tool_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Potrzebne narzędzia', font=("Segoe UI", "12"))
         tool_procedure.grid(row=0, column=1, sticky='news')
+
+        employee_procedure = tk.Label(second_frame, bg='#D3D3D3', text='Osoby', font=("Segoe UI", "12"))
+        employee_procedure.grid(row=0, column=2, sticky='news')
+
+        comment = tk.Label(second_frame, bg='#F0F0F0', text='Komentarz', font=("Segoe UI", "12"))
+        comment.grid(row=0, column=3, sticky='news')
+
         i = 1
-        for elem, tool in zip(import_data, import_tools):
+        for elem, tool, employee in zip(import_data, import_tools, import_employees):
             self.dict_check_status[sheet_choice][elem] = 0
             new_checkbutton = self.add_checkbutton(second_frame, elem, sheet_choice, progressbar,
                                                    label_progressbar)
             new_checkbutton.grid(row=i, column=0, pady=10, sticky='news')
-            new_lb = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}', anchor='w')
-            new_lb.grid(row=i, column=1, pady=10, sticky='news')
+
+            lb_tool = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}', anchor='w')
+            lb_tool.grid(row=i, column=1, pady=10, sticky='news')
+
+            lb_employee = tk.Label(second_frame, bg='#E8E8E8', text=f'{employee}', anchor='center')
+            lb_employee.grid(row=i, column=2, pady=10, sticky='news')
+
+            entry_comment = tk.Entry(second_frame, font=("Segoe UI", "10"), justify='center', relief='solid')
+            entry_comment.grid(row=i, column=3, pady=10, sticky='news', padx=5)
+
             i += 1
+
 
         self.scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview)
         self.scr.pack(side='right', fill='y')
@@ -344,7 +386,7 @@ class Figure1(object):
         return arg
 
     def import_data_from_txt(self):
-        filename = Figure1.choose_csv()
+        filename = self.choose_csv()
         with open(filename, 'r') as file:
             lines = file.readlines()
             for line in lines[1:]:
@@ -380,8 +422,8 @@ class Figure1(object):
         self.lb1.tkraise()
         self.check_if_status_completed(self.sheet_1)
 
-    @staticmethod
-    def choose_csv():
+
+    def choose_csv(self):
         imported_file = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                    filetypes=(("txt files", "*.txt"), ("All files", "*.*")))
         return imported_file
@@ -423,7 +465,7 @@ class ExitWindow(object):
         label.place(relx=0, rely=0, relwidth=1, relheight=0.6)
 
     def confirm_exit_button(self):
-        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: Figure1().exit())
+        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: sys.exit())
         button.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
 
     def change_status(self):
@@ -445,4 +487,4 @@ class ExitWindow(object):
 if __name__ == '__main__':
     figure = Figure1()
     figure.root_mainloop_start()
-    DataToTxt.delete_txt_file(figure.filename)
+    # DataToTxt.delete_txt_file(figure.filename)
