@@ -106,15 +106,15 @@ class Figure1(object):
         self.page3_frame()
         self.lower_frame()
 
-        self.checkbuttons_storage = {f'{str(self.sheet_1)}': {f'var': [], f'checkbutton': []},
-                                     f'{str(self.sheet_2)}': {f'var': [], f'checkbutton': []},
-                                     f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': []},
+        self.checkbuttons_storage = {f'{str(self.sheet_1)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
+                                     f'{str(self.sheet_2)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
+                                     f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      }
 
-        self.comments_storage = {f'{str(self.sheet_1)}': {},
-                                 f'{str(self.sheet_2)}': {},
-                                 f'{str(self.sheet_3)}': {},
-                                     }
+        # self.comments_storage = {f'{str(self.sheet_1)}': {},
+        #                          f'{str(self.sheet_2)}': {},
+        #                          f'{str(self.sheet_3)}': {},
+        #                              }
 
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
@@ -139,6 +139,7 @@ class Figure1(object):
         self.add_button1()
         self.add_button2()
         self.add_button3()
+        # self.button_get_comments()
         self.add_button_import_data_from_txt()
 
         self.p1f.tkraise()
@@ -184,7 +185,7 @@ class Figure1(object):
         self.bind_key_maximize_window()
 
     def exit(self):
-        # DataToTxt.delete_txt_file(self.filename)
+        DataToTxt.delete_txt_file(self.filename)
         self.root.destroy()
 
     def bind_key_maximize_window(self):
@@ -241,8 +242,22 @@ class Figure1(object):
     def bind_mousewheel(self, root, event):
         root.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-    def storage_comments(self):
-        pass
+    def add_comments(self, arg):
+        # comments = []
+        # for sheet in self.sheet_1, self.sheet_2, self.sheet_3:
+        #     for elem in self.checkbuttons_storage[sheet]['entry_widget']:
+        #         z = elem.get()
+        #         comments.append(z)
+        print(str(arg))
+
+    def callback_entry(self, txt, name):
+        procedure = name.split('#')[1]
+        if txt == '':
+            pass
+        else:
+            print(f'Dodano komentarz:{procedure} #{txt}')
+        return True
+
 
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
 
@@ -286,11 +301,17 @@ class Figure1(object):
             lb_employee = tk.Label(second_frame, bg='#E8E8E8', text=f'{employee}', anchor='center')
             lb_employee.grid(row=i, column=2, pady=10, sticky='news')
 
-            entry_comment = tk.Entry(second_frame, font=("Segoe UI", "10"), justify='center', relief='solid')
+            vcmd = self.root.register(self.callback_entry)
+            entry_comment = tk.Entry(second_frame, font=("Segoe UI", "10"), justify='center', relief='solid',
+                                     validate='focusout', validatecommand=(vcmd, '%P', '%W'), name=f'#'
+                                                                                                   f' {sheet_choice} '
+                                                                                                   f'{str(elem)}')
+
             entry_comment.grid(row=i, column=3, pady=10, sticky='news', padx=5)
 
-            i += 1
+            self.checkbuttons_storage[sheet_choice]['entry_widget'].append(entry_comment)
 
+            i += 1
 
         self.scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview)
         self.scr.pack(side='right', fill='y')
@@ -465,7 +486,7 @@ class ExitWindow(object):
         label.place(relx=0, rely=0, relwidth=1, relheight=0.6)
 
     def confirm_exit_button(self):
-        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: sys.exit())
+        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: Figure1().exit())
         button.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
 
     def change_status(self):
@@ -487,4 +508,5 @@ class ExitWindow(object):
 if __name__ == '__main__':
     figure = Figure1()
     figure.root_mainloop_start()
-    # DataToTxt.delete_txt_file(figure.filename)
+    DataToTxt.delete_txt_file(figure.filename)
+
