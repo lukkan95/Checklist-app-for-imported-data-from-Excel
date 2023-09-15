@@ -76,17 +76,17 @@ class DataLogs(object):
     def log_status_from_checkbutton_to_listbox_and_txt_file(listbox, name, value, sheet_name, filename=None):
         current_data = ConvertedDateTime.get_time()
         if value == 1:
-            text = f'{current_data} {sheet_name} : Zakończono procedurę: {name}\n'
+            text = f'{current_data} {sheet_name} : Zakończono procedurę: {name}'
             listbox.insert('end', text)
             listbox.itemconfig('end', fg='green')
 
         else:
-            text = f'{current_data} {sheet_name} : Anuulowano procedurę: {name}\n'
+            text = f'{current_data} {sheet_name} : Anuulowano procedurę: {name}'
             listbox.insert('end', text)
             listbox.itemconfig('end', fg='red')
 
         listbox.see('end')
-        DataToTxt.add_to_text_file(filename, text)
+        DataToTxt.add_to_text_file(filename, text + '\n')
 
 
 
