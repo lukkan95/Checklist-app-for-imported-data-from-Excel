@@ -4,7 +4,6 @@ from tkinter import filedialog, Canvas
 from tkinter.ttk import Progressbar
 import pandas as pd
 import tkinter as tk
-# from tkinter.scrolledtext import ScrolledText
 from datetime import datetime
 
 
@@ -98,6 +97,8 @@ class Figure1(object):
     def __init__(self, root=tk.Tk()):
 
         self.excel_file_name = 'Procedury-startowe.xlsx'
+        self.font = ("Segoe UI", "8")
+        self.wraplength = 200
         self.sheet_1 = 'A'
         self.sheet_2 = 'B'
         self.sheet_3 = 'C'
@@ -114,10 +115,6 @@ class Figure1(object):
                                      f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      }
 
-        # self.comments_storage = {f'{str(self.sheet_1)}': {},
-        #                          f'{str(self.sheet_2)}': {},
-        #                          f'{str(self.sheet_3)}': {},
-        #                              }
 
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
@@ -142,8 +139,8 @@ class Figure1(object):
         self.add_button1()
         self.add_button2()
         self.add_button3()
-        # self.button_get_comments()
         self.add_button_import_data_from_txt()
+        self.exit_button()
 
         self.p1f.tkraise()
         self.pb1.tkraise()
@@ -229,7 +226,7 @@ class Figure1(object):
         self.scrollbar.config(command=self.listbox_1.yview)
 
     def timer_label(self):
-        self.clock = tk.Label(self.root, text=self.get_time_to_timer(), font=("Segoe UI", "12"))
+        self.clock = tk.Label(self.root, text=self.get_time_to_timer(), font=self.font)
         self.clock.place(relx=0.85, rely=0.05, relwidth=0.1, relheight=0.03)
 
     def update_timer_label(self):
@@ -251,17 +248,15 @@ class Figure1(object):
         with open(self.filename, 'r') as file:
             for elem in file.readlines():
                 if f'{procedure}: Dodano komentarz: # {txt}\n' in elem:
-                    print('1')
                     return True
         if txt == '':
-            print('2')
             return True
         else:
-            print('3')
             DataToTxt.add_to_text_file(self.filename, f'{ConvertedDateTime.get_time()} {procedure}: Dodano komentarz: # {txt}\n')
             return True
 
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
+
         my_canvas = Canvas(root, bg='white')
         my_canvas.pack(side='left', fill='both', expand=1)
         second_frame = tk.Frame(my_canvas, bg='white')
@@ -277,16 +272,16 @@ class Figure1(object):
 
         import_data, import_tools, import_employees = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
 
-        label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=("Segoe UI", "12"))
+        label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=self.font, wraplength=self.wraplength)
         label_procedure.grid(row=0, column=0, sticky='news')
 
-        tool_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Potrzebne narzędzia', font=("Segoe UI", "12"))
+        tool_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Potrzebne narzędzia', font=self.font, wraplength=self.wraplength)
         tool_procedure.grid(row=0, column=1, sticky='news')
 
-        employee_procedure = tk.Label(second_frame, bg='#D3D3D3', text='Osoby', font=("Segoe UI", "12"))
+        employee_procedure = tk.Label(second_frame, bg='#D3D3D3', text='Osoby', font=self.font)
         employee_procedure.grid(row=0, column=2, sticky='news')
 
-        comment = tk.Label(second_frame, bg='#F0F0F0', text='Komentarz', font=("Segoe UI", "12"))
+        comment = tk.Label(second_frame, bg='#F0F0F0', text='Komentarz', font=self.font)
         comment.grid(row=0, column=3, sticky='news')
 
         i = 1
@@ -297,10 +292,10 @@ class Figure1(object):
                                                    label_progressbar)
             new_checkbutton.grid(row=i, column=0, pady=10, sticky='news')
 
-            lb_tool = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}', anchor='w')
+            lb_tool = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}', anchor='w', wraplength=self.wraplength)
             lb_tool.grid(row=i, column=1, pady=10, sticky='news')
 
-            lb_employee = tk.Label(second_frame, bg='#E8E8E8', text=f'{employee}', anchor='center')
+            lb_employee = tk.Label(second_frame, bg='#E8E8E8', text=f'{employee}', anchor='center', wraplength=self.wraplength)
             lb_employee.grid(row=i, column=2, pady=10, sticky='news')
 
             vcmd = self.root.register(self.callback_entry)
@@ -321,7 +316,7 @@ class Figure1(object):
 
     def add_checkbutton(self, root, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
-        cb = tk.Checkbutton(root, bg='#E8E8E8', text=f'{elem}', anchor='w', variable=var, onvalue=1,
+        cb = tk.Checkbutton(root, bg='#E8E8E8', text=f'{elem}', anchor='w', variable=var, onvalue=1, wraplength=400,
                             offvalue=0,
                             command=lambda: [DataLogs().log_status_from_checkbutton_to_listbox_and_txt_file(
                                 self.listbox_1, elem, var.get(), sheet_choice, self.filename),
@@ -364,10 +359,10 @@ class Figure1(object):
     def label_progressbar(self, sheet):
         try:
             text = f'Wykonano {sum(self.dict_check_status[sheet].values())} z {len(self.dict_check_status[sheet])} zadań - {round((sum(self.dict_check_status[sheet].values()) / len(self.dict_check_status[sheet])) * 100)}%'
-            value_label = tk.Label(self.root, text=text, bg="#ff6666", font=("Segoe UI", "10"))
+            value_label = tk.Label(self.root, text=text, bg="#ff6666", font=self.font)
             value_label.place(relx=0.4, rely=0.66, relwidth=0.2, relheight=0.03)
         except:
-            value_label = tk.Label(self.root, text='Procedury nierozpoczęte', bg="#ff6666", font=("Segoe UI", "10"))
+            value_label = tk.Label(self.root, text='Procedury nierozpoczęte', bg="#ff6666", font=self.font)
             value_label.place(relx=0.4, rely=0.66, relwidth=0.2, relheight=0.03)
         return value_label
 
@@ -398,6 +393,11 @@ class Figure1(object):
                                                self.check_if_status_completed(self.sheet_3)])
         btn3.place(relx=0.27, rely=0.05, relwidth=0.1, relheight=0.03)
 
+    def exit_button(self):
+        btn_exit=tk.Button(self.root, text='Exit',
+                         command=lambda: self.ask_if_exit())
+        btn_exit.place(relx=0.7, rely=0.05, relwidth=0.1, relheight=0.03)
+
     @staticmethod
     def combine_number_with_sheet(arg):
         if arg == 'A':
@@ -413,23 +413,25 @@ class Figure1(object):
         with open(filename, 'r') as file:
             lines = file.readlines()
             for line in lines[1:]:
-                DataToTxt.add_to_text_file(self.filename, line)
-                imported_sheet = line.split(' ', 7)[2]
-                imported_state = line.split(' ', 7)[4]
-                imported_number_of_procedure = (line.split(' ', 7)[6])
-                # imported_activity = line.split(' ', 7)[7].replace('\n', '')
-                temp_checkbutton = self.checkbuttons_storage[imported_sheet]['checkbutton'][
-                    int(imported_number_of_procedure) - 1]
-                temp_var = self.checkbuttons_storage[imported_sheet]['var'][int(imported_number_of_procedure) - 1]
-                if imported_state == 'Zakończono':
-                    temp_var.set(1)
-                    self.change_color_buttons(temp_checkbutton, int(temp_var.get()))
-                    self.change_status_checkbutton(temp_checkbutton['text'], int(temp_var.get()), imported_sheet)
+                if 'Dodano komentarz:' in str(line):
+                    pass
+                else:
+                    DataToTxt.add_to_text_file(self.filename, line)
+                    imported_sheet = line.split(' ', 7)[2]
+                    imported_state = line.split(' ', 7)[4]
+                    imported_number_of_procedure = (line.split(' ', 7)[6])
+                    # imported_activity = line.split(' ', 7)[7].replace('\n', '')
+                    temp_checkbutton = self.checkbuttons_storage[imported_sheet]['checkbutton'][int(imported_number_of_procedure) - 1]
+                    temp_var = self.checkbuttons_storage[imported_sheet]['var'][int(imported_number_of_procedure) - 1]
+                    if imported_state == 'Zakończono':
+                        temp_var.set(1)
+                        self.change_color_buttons(temp_checkbutton, int(temp_var.get()))
+                        self.change_status_checkbutton(temp_checkbutton['text'], int(temp_var.get()), imported_sheet)
 
-                elif imported_state == 'Anuulowano':
-                    temp_var.set(0)
-                    self.change_color_buttons(temp_checkbutton, int(temp_var.get()))
-                    self.change_status_checkbutton(temp_checkbutton['text'], int(temp_var.get()), imported_sheet)
+                    elif imported_state == 'Anuulowano':
+                        temp_var.set(0)
+                        self.change_color_buttons(temp_checkbutton, int(temp_var.get()))
+                        self.change_status_checkbutton(temp_checkbutton['text'], int(temp_var.get()), imported_sheet)
 
         self.update_progressbar(self.pb1, self.sheet_1)
         self.update_label_progressbar(self.sheet_1, self.lb1)
@@ -488,14 +490,14 @@ class ExitWindow(object):
         label.place(relx=0, rely=0, relwidth=1, relheight=0.6)
 
     def confirm_exit_button(self):
-        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: Figure1().exit())
+        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: sys.exit(), font=("Segoe UI", "6"))
         button.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
 
     def change_status(self):
         self.check = False
 
     def cancel_exit_button(self):
-        button = tk.Button(self.new_window, text='No', default='active', command=lambda:
+        button = tk.Button(self.new_window, text='No', default='active', font=("Segoe UI", "6"), command=lambda:
         [
             self.new_window.destroy(),
             self.change_status()
@@ -510,5 +512,5 @@ class ExitWindow(object):
 if __name__ == '__main__':
     figure = Figure1()
     figure.root_mainloop_start()
-    DataToTxt.delete_txt_file(figure.filename)
+    # DataToTxt.delete_txt_file(figure.filename)
 
