@@ -90,6 +90,9 @@ class DataLogs(object):
         DataToTxt.add_to_text_file(filename, text)
 
 
+
+
+
 class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
@@ -239,28 +242,26 @@ class Figure1(object):
         dt_string = now.strftime("%H : %M : %S")
         return dt_string
 
-    def bind_mousewheel(self, root, event):
+    @staticmethod
+    def bind_mousewheel(root, event):
         root.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-    def add_comments(self, arg):
-        # comments = []
-        # for sheet in self.sheet_1, self.sheet_2, self.sheet_3:
-        #     for elem in self.checkbuttons_storage[sheet]['entry_widget']:
-        #         z = elem.get()
-        #         comments.append(z)
-        print(str(arg))
 
     def callback_entry(self, txt, name):
         procedure = name.split('#')[1]
+        with open(self.filename, 'r') as file:
+            for elem in file.readlines():
+                if f'{procedure}: Dodano komentarz: # {txt}\n' in elem:
+                    print('1')
+                    return True
         if txt == '':
-            pass
+            print('2')
+            return True
         else:
-            print(f'Dodano komentarz:{procedure} #{txt}')
-        return True
-
+            print('3')
+            DataToTxt.add_to_text_file(self.filename, f'{ConvertedDateTime.get_time()} {procedure}: Dodano komentarz: # {txt}\n')
+            return True
 
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
-
         my_canvas = Canvas(root, bg='white')
         my_canvas.pack(side='left', fill='both', expand=1)
         second_frame = tk.Frame(my_canvas, bg='white')
@@ -289,6 +290,7 @@ class Figure1(object):
         comment.grid(row=0, column=3, sticky='news')
 
         i = 1
+
         for elem, tool, employee in zip(import_data, import_tools, import_employees):
             self.dict_check_status[sheet_choice][elem] = 0
             new_checkbutton = self.add_checkbutton(second_frame, elem, sheet_choice, progressbar,
@@ -304,7 +306,7 @@ class Figure1(object):
             vcmd = self.root.register(self.callback_entry)
             entry_comment = tk.Entry(second_frame, font=("Segoe UI", "10"), justify='center', relief='solid',
                                      validate='focusout', validatecommand=(vcmd, '%P', '%W'), name=f'#'
-                                                                                                   f' {sheet_choice} '
+                                                                                                   f'{sheet_choice} '
                                                                                                    f'{str(elem)}')
 
             entry_comment.grid(row=i, column=3, pady=10, sticky='news', padx=5)
@@ -313,9 +315,9 @@ class Figure1(object):
 
             i += 1
 
-        self.scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview)
-        self.scr.pack(side='right', fill='y')
-        my_canvas.configure(yscrollcommand=self.scr.set)
+        scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview)
+        scr.pack(side='right', fill='y')
+        my_canvas.configure(yscrollcommand=scr.set)
 
     def add_checkbutton(self, root, elem, sheet_choice, progressbar, label_progressbar):
         var = tk.IntVar()
