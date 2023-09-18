@@ -204,19 +204,19 @@ class Figure1(object):
 
     def page1_frame(self):
         self.p1f = tk.Frame(self.root)
-        self.p1f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
+        self.p1f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
 
     def page2_frame(self):
         self.p2f = tk.Frame(self.root, bg='yellow')
-        self.p2f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
+        self.p2f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
 
     def page3_frame(self):
         self.p3f = tk.Frame(self.root, bg='green')
-        self.p3f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.5)
+        self.p3f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
 
     def lower_frame(self):
         self.dfr = tk.Frame(self.root, width=0.1, height=0.1, bg='white')
-        self.dfr.place(relx=0.05, rely=0.7, relwidth=0.9, relheight=0.25)
+        self.dfr.place(relx=0.05, rely=0.8, relwidth=0.9, relheight=0.15)
 
     def scrollbar_lower_frame(self):
         self.scrollbar = tk.Scrollbar(self.dfr)
@@ -227,7 +227,7 @@ class Figure1(object):
 
     def timer_label(self):
         self.clock = tk.Label(self.root, text=self.get_time_to_timer(), font=self.font)
-        self.clock.place(relx=0.85, rely=0.05, relwidth=0.1, relheight=0.03)
+        self.clock.place(relx=0.85, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def update_timer_label(self):
         self.clock.config(text=self.get_time_to_timer())
@@ -310,7 +310,7 @@ class Figure1(object):
 
             i += 1
 
-        scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview)
+        scr = tk.Scrollbar(root, orient='vertical', command=my_canvas.yview, width=40)
         scr.pack(side='right', fill='y')
         my_canvas.configure(yscrollcommand=scr.set)
 
@@ -349,7 +349,7 @@ class Figure1(object):
 
     def progressbar(self):
         progressbar = Progressbar(self.root, orient='horizontal', length=1, mode='determinate', value=0)
-        progressbar.place(relx=0.4, rely=0.62, relwidth=0.2, relheight=0.03)
+        progressbar.place(relx=0.4, rely=0.72, relwidth=0.2, relheight=0.03)
         return progressbar
 
     def update_progressbar(self, progressbar, sheet):
@@ -360,10 +360,10 @@ class Figure1(object):
         try:
             text = f'Wykonano {sum(self.dict_check_status[sheet].values())} z {len(self.dict_check_status[sheet])} zadań - {round((sum(self.dict_check_status[sheet].values()) / len(self.dict_check_status[sheet])) * 100)}%'
             value_label = tk.Label(self.root, text=text, bg="#ff6666", font=self.font)
-            value_label.place(relx=0.4, rely=0.66, relwidth=0.2, relheight=0.03)
+            value_label.place(relx=0.4, rely=0.76, relwidth=0.2, relheight=0.03)
         except:
             value_label = tk.Label(self.root, text='Procedury nierozpoczęte', bg="#ff6666", font=self.font)
-            value_label.place(relx=0.4, rely=0.66, relwidth=0.2, relheight=0.03)
+            value_label.place(relx=0.4, rely=0.76, relwidth=0.2, relheight=0.03)
         return value_label
 
     def update_label_progressbar(self, sheet, label_progressbar):
@@ -379,24 +379,24 @@ class Figure1(object):
         btn1 = tk.Button(self.root, text=self.sheet_1,
                               command=lambda: [self.p1f.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(),
                                                self.check_if_status_completed(self.sheet_1)])
-        btn1.place(relx=0.05, rely=0.05, relwidth=0.1, relheight=0.03)
+        btn1.place(relx=0.05, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def add_button2(self):
         btn2 = tk.Button(self.root, text=self.sheet_2,
                               command=lambda: [self.p2f.tkraise(), self.pb2.tkraise(), self.lb2.tkraise(),
                                                self.check_if_status_completed(self.sheet_2)])
-        btn2.place(relx=0.16, rely=0.05, relwidth=0.1, relheight=0.03)
+        btn2.place(relx=0.16, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def add_button3(self):
         btn3 = tk.Button(self.root, text=self.sheet_3,
                               command=lambda: [self.p3f.tkraise(), self.pb3.tkraise(), self.lb3.tkraise(),
                                                self.check_if_status_completed(self.sheet_3)])
-        btn3.place(relx=0.27, rely=0.05, relwidth=0.1, relheight=0.03)
+        btn3.place(relx=0.27, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def exit_button(self):
         btn_exit=tk.Button(self.root, text='Exit',
                          command=lambda: self.ask_if_exit())
-        btn_exit.place(relx=0.7, rely=0.05, relwidth=0.1, relheight=0.03)
+        btn_exit.place(relx=0.7, rely=0.03, relwidth=0.1, relheight=0.06)
 
     @staticmethod
     def combine_number_with_sheet(arg):
@@ -456,7 +456,7 @@ class Figure1(object):
     def add_button_import_data_from_txt(self):
         self.btn3 = tk.Button(self.root, text='Import data',
                               command=lambda: [self.import_data_from_txt()])
-        self.btn3.place(relx=0.38, rely=0.05, relwidth=0.1, relheight=0.03)
+        self.btn3.place(relx=0.38, rely=0.03, relwidth=0.1, relheight=0.06)
 
 
 class ExitWindow(object):
