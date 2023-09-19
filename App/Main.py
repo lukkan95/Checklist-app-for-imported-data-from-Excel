@@ -9,33 +9,58 @@ from datetime import datetime
 
 class ImportExcelData(object):
 
-    @staticmethod
-    def get_data(filename, sheet_choice):
-        filename = filename
-        df = pd.read_excel(filename, sheet_name=f'{sheet_choice}', engine='openpyxl', dtype=object, header=None)
-        list_1 = df.values.tolist()
-        data = []
-        employees = []
-        tools = []
-        for elem in list_1[1:]:
-            if str(elem[1]) == 'nan' or str(elem[0]) == 'nan':
+    def __init__(self, filename, sheet_choice):
+        self.filename = filename
+        self.sheet_choice = sheet_choice
+        self.imported_sheet = self.convert_data_to_list()
+
+        # Set the column position from Excel sheet
+
+        self.number_of_procedure_column = 0
+        self.data_column = 2
+        self.employees_column = 3
+        self.tools_column = 4
+        self.notes_column = 5
+
+        # Storage all data from sheet's columns described above
+
+        self.procedures_list = []
+        self.tools_list = []
+        self.employees_list = []
+        self.notes_list = []
+
+    def convert_data_to_list(self):
+        df = pd.read_excel(self.filename, sheet_name=f'{self.sheet_choice}', engine='openpyxl', dtype=object, header=None)
+        list_of_values = df.values.tolist()[2:]
+        return list_of_values
+
+    def get_procedures(self):
+        for elem in self.imported_sheet:
+            if str(elem[self.data_column]) == 'nan' or str(elem[self.number_of_procedure_column]) == 'nan':
                 continue
             else:
-                data.append(f'{elem[0]} {elem[1]}')
-                if str(elem[3]) == 'nan':
-                    tools.append('-')
-                    if str(elem[2]) == 'nan':
-                        employees.append('-')
-                    else:
-                        employees.append(f'{elem[2]}')
+                self.procedures_list.append(f'{elem[self.number_of_procedure_column]} {elem[self.data_column]}')
+                self.get_employees(elem)
+                self.get_tools(elem)
+                self.get_notes(elem)
 
-                else:
-                    tools.append(f'{elem[3]}')
-                    if str(elem[2]) == 'nan':
-                        employees.append('-')
-                    else:
-                        employees.append(f'{elem[2]}')
-        return data, tools, employees
+    def get_employees(self, choice):
+        if str(choice[self.employees_column]) == 'nan':
+            self.employees_list.append('-')
+        else:
+            self.employees_list.append(f'{choice[self.employees_column]}')
+
+    def get_tools(self, choice):
+        if str(choice[self.tools_column]) == 'nan':
+            self.tools_list.append('-')
+        else:
+            self.tools_list.append(f'{choice[self.tools_column]}')
+
+    def get_notes(self, choice):
+        if str(choice[self.notes_column]) == 'nan':
+            self.notes_list.append('-')
+        else:
+            self.notes_list.append(f'{choice[self.notes_column]}')
 
 
 class DataToTxt(object):
@@ -89,32 +114,35 @@ class DataLogs(object):
         DataToTxt.add_to_text_file(filename, text + '\n')
 
 
-
-
-
 class Figure1(object):
 
     def __init__(self, root=tk.Tk()):
 
-        self.excel_file_name = 'Procedury-startowe.xlsx'
+        self.excel_file_name = 'PERUN_Procedury.xlsx'
         self.font = ("Segoe UI", "8")
         self.wraplength = 200
-        self.sheet_1 = 'A'
-        self.sheet_2 = 'B'
-        self.sheet_3 = 'C'
+
+        self.sheet_1 = 'Kontener'
+        self.sheet_2 = 'Wyrzutnia'
+        self.sheet_3 = 'Tankowanie'
+        self.sheet_4 = 'Procedura_IBF'
+
         self.root = root
         self.start_parameters()
         self.create_dict_check_status()
+
         self.page1_frame()
         self.page2_frame()
         self.page3_frame()
+        self.page4_frame()
+
         self.lower_frame()
 
         self.checkbuttons_storage = {f'{str(self.sheet_1)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      f'{str(self.sheet_2)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
+                                     f'{str(self.sheet_4)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      }
-
 
         self.bind_key_maximize_window()
         self.bind_key_exit_applicaiton()
@@ -136,9 +164,15 @@ class Figure1(object):
         self.lb3 = self.label_progressbar(self.sheet_3)
         self.create_frame_with_data(self.p3f, self.sheet_3, self.pb3, self.lb3)
 
+        self.pb4 = self.progressbar()
+        self.lb4 = self.label_progressbar(self.sheet_4)
+        self.create_frame_with_data(self.p4f, self.sheet_4, self.pb4, self.lb4)
+
         self.add_button1()
         self.add_button2()
         self.add_button3()
+        self.add_button_4()
+
         self.add_button_import_data_from_txt()
         self.exit_button()
 
@@ -200,7 +234,8 @@ class Figure1(object):
     def create_dict_check_status(self):
         self.dict_check_status = {self.sheet_1: {},
                                   self.sheet_2: {},
-                                  self.sheet_3: {}}
+                                  self.sheet_3: {},
+                                  self.sheet_4: {}}
 
     def page1_frame(self):
         self.p1f = tk.Frame(self.root)
@@ -213,6 +248,10 @@ class Figure1(object):
     def page3_frame(self):
         self.p3f = tk.Frame(self.root, bg='green')
         self.p3f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
+
+    def page4_frame(self):
+        self.p4f = tk.Frame(self.root, bg='grey')
+        self.p4f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
 
     def lower_frame(self):
         self.dfr = tk.Frame(self.root, width=0.1, height=0.1, bg='white')
@@ -252,10 +291,12 @@ class Figure1(object):
         if txt == '':
             return True
         else:
-            DataToTxt.add_to_text_file(self.filename, f'{ConvertedDateTime.get_time()} {procedure}: Dodano komentarz: # {txt}\n')
+            DataToTxt.add_to_text_file(self.filename,
+                                       f'{ConvertedDateTime.get_time()} {procedure}: Dodano komentarz: # {txt}\n')
             return True
 
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
+        padx = 2
 
         my_canvas = Canvas(root, bg='white')
         my_canvas.pack(side='left', fill='both', expand=1)
@@ -269,34 +310,46 @@ class Figure1(object):
         second_frame.columnconfigure(1, weight=2)
         second_frame.columnconfigure(2, weight=5)
         second_frame.columnconfigure(3, weight=5)
+        second_frame.columnconfigure(4, weight=5)
 
-        import_data, import_tools, import_employees = ImportExcelData.get_data(self.excel_file_name, sheet_choice)
+        excel_data = ImportExcelData(self.excel_file_name, sheet_choice)
+        excel_data.get_procedures()
 
-        label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=self.font, wraplength=self.wraplength)
-        label_procedure.grid(row=0, column=0, sticky='news')
+        label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=self.font,
+                                   wraplength=self.wraplength)
+        label_procedure.grid(row=0, column=0, sticky='news', padx=padx)
 
-        tool_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Potrzebne narzędzia', font=self.font, wraplength=self.wraplength)
-        tool_procedure.grid(row=0, column=1, sticky='news')
+        employee_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Osoby', font=self.font)
+        employee_procedure.grid(row=0, column=1, sticky='news', padx=padx)
 
-        employee_procedure = tk.Label(second_frame, bg='#D3D3D3', text='Osoby', font=self.font)
-        employee_procedure.grid(row=0, column=2, sticky='news')
+        tool_procedure = tk.Label(second_frame, bg='#D3D3D3', text='Potrzebne narzędzia', font=self.font,
+                                  wraplength=self.wraplength)
+        tool_procedure.grid(row=0, column=2, sticky='news', padx=padx)
+
+        tool_procedure = tk.Label(second_frame, bg='#E0E0E0', text='Uwagi', font=self.font,
+                                  wraplength=self.wraplength)
+        tool_procedure.grid(row=0, column=3, sticky='news', padx=padx)
 
         comment = tk.Label(second_frame, bg='#F0F0F0', text='Komentarz', font=self.font)
-        comment.grid(row=0, column=3, sticky='news')
+        comment.grid(row=0, column=4, sticky='news', padx=padx)
 
         i = 1
 
-        for elem, tool, employee in zip(import_data, import_tools, import_employees):
+        for elem, tool, employee, note in zip(excel_data.procedures_list, excel_data.tools_list, excel_data.employees_list, excel_data.notes_list):
             self.dict_check_status[sheet_choice][elem] = 0
             new_checkbutton = self.add_checkbutton(second_frame, elem, sheet_choice, progressbar,
                                                    label_progressbar)
-            new_checkbutton.grid(row=i, column=0, pady=10, sticky='news')
+            new_checkbutton.grid(row=i, column=0, pady=10, sticky='news', padx=padx)
 
-            lb_tool = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}', anchor='w', wraplength=self.wraplength)
-            lb_tool.grid(row=i, column=1, pady=10, sticky='news')
+            lb_employee = tk.Label(second_frame, bg='#E8E8E8', text=f'{employee}', anchor='center',
+                                   wraplength=self.wraplength)
+            lb_employee.grid(row=i, column=1, pady=10, sticky='news', padx=padx)
 
-            lb_employee = tk.Label(second_frame, bg='#E8E8E8', text=f'{employee}', anchor='center', wraplength=self.wraplength)
-            lb_employee.grid(row=i, column=2, pady=10, sticky='news')
+            lb_tool = tk.Label(second_frame, bg='#E8E8E8', text=f'{tool}', anchor='center', wraplength=self.wraplength)
+            lb_tool.grid(row=i, column=2, pady=10, sticky='news', padx=padx)
+
+            lb_note = tk.Label(second_frame, bg='#E8E8E8', text=f'{note}', anchor='center', wraplength=self.wraplength)
+            lb_note.grid(row=i, column=3, pady=10, sticky='news', padx=padx)
 
             vcmd = self.root.register(self.callback_entry)
             entry_comment = tk.Entry(second_frame, font=("Segoe UI", "10"), justify='center', relief='solid',
@@ -304,7 +357,7 @@ class Figure1(object):
                                                                                                    f'{sheet_choice} '
                                                                                                    f'{str(elem)}')
 
-            entry_comment.grid(row=i, column=3, pady=10, sticky='news', padx=5)
+            entry_comment.grid(row=i, column=4, pady=10, sticky='news', padx=5)
 
             self.checkbuttons_storage[sheet_choice]['entry_widget'].append(entry_comment)
 
@@ -324,7 +377,8 @@ class Figure1(object):
                                 self.change_status_checkbutton(elem, var.get(), sheet_choice),
                                 self.check_if_status_completed(sheet_choice),
                                 self.update_progressbar(progressbar, sheet_choice),
-                                self.update_label_progressbar(sheet_choice, label_progressbar)])
+                                self.update_label_progressbar(sheet_choice, label_progressbar),
+                                self.disable_import_button()])
 
         self.checkbuttons_storage[sheet_choice]['checkbutton'].append(cb)
         self.checkbuttons_storage[sheet_choice]['var'].append(var)
@@ -377,36 +431,32 @@ class Figure1(object):
 
     def add_button1(self):
         btn1 = tk.Button(self.root, text=self.sheet_1,
-                              command=lambda: [self.p1f.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(),
-                                               self.check_if_status_completed(self.sheet_1)])
+                         command=lambda: [self.p1f.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(),
+                                          self.check_if_status_completed(self.sheet_1)])
         btn1.place(relx=0.05, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def add_button2(self):
         btn2 = tk.Button(self.root, text=self.sheet_2,
-                              command=lambda: [self.p2f.tkraise(), self.pb2.tkraise(), self.lb2.tkraise(),
-                                               self.check_if_status_completed(self.sheet_2)])
+                         command=lambda: [self.p2f.tkraise(), self.pb2.tkraise(), self.lb2.tkraise(),
+                                          self.check_if_status_completed(self.sheet_2)])
         btn2.place(relx=0.16, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def add_button3(self):
         btn3 = tk.Button(self.root, text=self.sheet_3,
-                              command=lambda: [self.p3f.tkraise(), self.pb3.tkraise(), self.lb3.tkraise(),
-                                               self.check_if_status_completed(self.sheet_3)])
+                         command=lambda: [self.p3f.tkraise(), self.pb3.tkraise(), self.lb3.tkraise(),
+                                          self.check_if_status_completed(self.sheet_3)])
         btn3.place(relx=0.27, rely=0.03, relwidth=0.1, relheight=0.06)
 
-    def exit_button(self):
-        btn_exit=tk.Button(self.root, text='Exit',
-                         command=lambda: self.ask_if_exit())
-        btn_exit.place(relx=0.7, rely=0.03, relwidth=0.1, relheight=0.06)
+    def add_button_4(self):
+        btn4 = tk.Button(self.root, text=self.sheet_4,
+                         command=lambda: [self.p4f.tkraise(), self.pb4.tkraise(), self.lb4.tkraise(),
+                                          self.check_if_status_completed(self.sheet_4)])
+        btn4.place(relx=0.38, rely=0.03, relwidth=0.1, relheight=0.06)
 
-    @staticmethod
-    def combine_number_with_sheet(arg):
-        if arg == 'A':
-            arg = 0
-        elif arg == 'B':
-            arg = 1
-        else:
-            arg = 2
-        return arg
+    def exit_button(self):
+        btn_exit = tk.Button(self.root, text='Exit',
+                             command=lambda: self.ask_if_exit())
+        btn_exit.place(relx=0.74, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def import_data_from_txt(self):
         filename = self.choose_csv()
@@ -420,8 +470,8 @@ class Figure1(object):
                     imported_sheet = line.split(' ', 7)[2]
                     imported_state = line.split(' ', 7)[4]
                     imported_number_of_procedure = (line.split(' ', 7)[6])
-                    # imported_activity = line.split(' ', 7)[7].replace('\n', '')
-                    temp_checkbutton = self.checkbuttons_storage[imported_sheet]['checkbutton'][int(imported_number_of_procedure) - 1]
+                    temp_checkbutton = self.checkbuttons_storage[imported_sheet]['checkbutton'][
+                        int(imported_number_of_procedure) - 1]
                     temp_var = self.checkbuttons_storage[imported_sheet]['var'][int(imported_number_of_procedure) - 1]
                     if imported_state == 'Zakończono':
                         temp_var.set(1)
@@ -442,11 +492,13 @@ class Figure1(object):
         self.update_progressbar(self.pb3, self.sheet_3)
         self.update_label_progressbar(self.sheet_3, self.lb3)
 
+        self.update_progressbar(self.pb4, self.sheet_4)
+        self.update_label_progressbar(self.sheet_4, self.lb4)
+
         self.p1f.tkraise()
         self.pb1.tkraise()
         self.lb1.tkraise()
         self.check_if_status_completed(self.sheet_1)
-
 
     def choose_csv(self):
         imported_file = filedialog.askopenfilename(initialdir=os.getcwd(),
@@ -454,9 +506,12 @@ class Figure1(object):
         return imported_file
 
     def add_button_import_data_from_txt(self):
-        self.btn3 = tk.Button(self.root, text='Import data',
-                              command=lambda: [self.import_data_from_txt()])
-        self.btn3.place(relx=0.38, rely=0.03, relwidth=0.1, relheight=0.06)
+        self.btn_import = tk.Button(self.root, text='Import data',
+                               command=lambda: [self.import_data_from_txt()])
+        self.btn_import.place(relx=0.63, rely=0.03, relwidth=0.1, relheight=0.06)
+
+    def disable_import_button(self):
+        self.btn_import['state'] = 'disabled'
 
 
 class ExitWindow(object):
@@ -490,8 +545,10 @@ class ExitWindow(object):
         label.place(relx=0, rely=0, relwidth=1, relheight=0.6)
 
     def confirm_exit_button(self):
-        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: sys.exit(), font=("Segoe UI", "6"))
-        button.place(relx=0.05, rely=0.7, relwidth=0.4, relheight=0.2)
+        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: Figure1().exit(),
+                           font=("Segoe "
+                                 "UI", "6"))
+        button.place(relx=0.05, rely=0.5, relwidth=0.4, relheight=0.4)
 
     def change_status(self):
         self.check = False
@@ -502,7 +559,7 @@ class ExitWindow(object):
             self.new_window.destroy(),
             self.change_status()
         ])
-        button.place(relx=0.55, rely=0.7, relwidth=0.4, relheight=0.2)
+        button.place(relx=0.55, rely=0.5, relwidth=0.4, relheight=0.4)
 
     def destroy_button(self):
         self.check = False
@@ -512,5 +569,4 @@ class ExitWindow(object):
 if __name__ == '__main__':
     figure = Figure1()
     figure.root_mainloop_start()
-    # DataToTxt.delete_txt_file(figure.filename)
-
+    DataToTxt.delete_txt_file(figure.filename)
