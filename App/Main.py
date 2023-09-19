@@ -126,6 +126,7 @@ class Figure1(object):
         self.sheet_2 = 'Wyrzutnia'
         self.sheet_3 = 'Tankowanie'
         self.sheet_4 = 'Procedura_IBF'
+        self.sheet_5 = 'Procedura_przedstartowa'
 
         self.root = root
         self.start_parameters()
@@ -135,6 +136,7 @@ class Figure1(object):
         self.page2_frame()
         self.page3_frame()
         self.page4_frame()
+        self.page5_frame()
 
         self.lower_frame()
 
@@ -142,6 +144,7 @@ class Figure1(object):
                                      f'{str(self.sheet_2)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      f'{str(self.sheet_4)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
+                                     f'{str(self.sheet_5)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      }
 
         self.bind_key_maximize_window()
@@ -168,10 +171,15 @@ class Figure1(object):
         self.lb4 = self.label_progressbar(self.sheet_4)
         self.create_frame_with_data(self.p4f, self.sheet_4, self.pb4, self.lb4)
 
+        self.pb5 = self.progressbar()
+        self.lb5 = self.label_progressbar(self.sheet_5)
+        self.create_frame_with_data(self.p5f, self.sheet_5, self.pb5, self.lb5)
+
         self.add_button1()
         self.add_button2()
         self.add_button3()
-        self.add_button_4()
+        self.add_button4()
+        self.add_button5()
 
         self.add_button_import_data_from_txt()
         self.exit_button()
@@ -235,7 +243,8 @@ class Figure1(object):
         self.dict_check_status = {self.sheet_1: {},
                                   self.sheet_2: {},
                                   self.sheet_3: {},
-                                  self.sheet_4: {}}
+                                  self.sheet_4: {},
+                                  self.sheet_5: {}}
 
     def page1_frame(self):
         self.p1f = tk.Frame(self.root)
@@ -253,12 +262,16 @@ class Figure1(object):
         self.p4f = tk.Frame(self.root, bg='grey')
         self.p4f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
 
+    def page5_frame(self):
+        self.p5f = tk.Frame(self.root, bg='purple')
+        self.p5f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
+
     def lower_frame(self):
         self.dfr = tk.Frame(self.root, width=0.1, height=0.1, bg='white')
         self.dfr.place(relx=0.05, rely=0.8, relwidth=0.9, relheight=0.15)
 
     def scrollbar_lower_frame(self):
-        self.scrollbar = tk.Scrollbar(self.dfr)
+        self.scrollbar = tk.Scrollbar(self.dfr, width=40)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.listbox_1 = tk.Listbox(self.dfr, yscrollcommand=self.scrollbar.set)
         self.listbox_1.pack(side='left', fill='both', expand=1)
@@ -297,7 +310,6 @@ class Figure1(object):
 
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
         padx = 2
-
         my_canvas = Canvas(root, bg='white')
         my_canvas.pack(side='left', fill='both', expand=1)
         second_frame = tk.Frame(my_canvas, bg='white')
@@ -355,7 +367,7 @@ class Figure1(object):
             entry_comment = tk.Entry(second_frame, font=("Segoe UI", "10"), justify='center', relief='solid',
                                      validate='focusout', validatecommand=(vcmd, '%P', '%W'), name=f'#'
                                                                                                    f'{sheet_choice} '
-                                                                                                   f'{str(elem)}')
+                                                                                                   f'{elem}')
 
             entry_comment.grid(row=i, column=4, pady=10, sticky='news', padx=5)
 
@@ -433,25 +445,31 @@ class Figure1(object):
         btn1 = tk.Button(self.root, text=self.sheet_1,
                          command=lambda: [self.p1f.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(),
                                           self.check_if_status_completed(self.sheet_1)])
-        btn1.place(relx=0.05, rely=0.03, relwidth=0.1, relheight=0.06)
+        btn1.place(relx=0.05, rely=0.03, relwidth=0.07, relheight=0.06)
 
     def add_button2(self):
         btn2 = tk.Button(self.root, text=self.sheet_2,
                          command=lambda: [self.p2f.tkraise(), self.pb2.tkraise(), self.lb2.tkraise(),
                                           self.check_if_status_completed(self.sheet_2)])
-        btn2.place(relx=0.16, rely=0.03, relwidth=0.1, relheight=0.06)
+        btn2.place(relx=0.13, rely=0.03, relwidth=0.07, relheight=0.06)
 
     def add_button3(self):
         btn3 = tk.Button(self.root, text=self.sheet_3,
                          command=lambda: [self.p3f.tkraise(), self.pb3.tkraise(), self.lb3.tkraise(),
                                           self.check_if_status_completed(self.sheet_3)])
-        btn3.place(relx=0.27, rely=0.03, relwidth=0.1, relheight=0.06)
+        btn3.place(relx=0.21, rely=0.03, relwidth=0.07, relheight=0.06)
 
-    def add_button_4(self):
+    def add_button4(self):
         btn4 = tk.Button(self.root, text=self.sheet_4,
                          command=lambda: [self.p4f.tkraise(), self.pb4.tkraise(), self.lb4.tkraise(),
                                           self.check_if_status_completed(self.sheet_4)])
-        btn4.place(relx=0.38, rely=0.03, relwidth=0.1, relheight=0.06)
+        btn4.place(relx=0.29, rely=0.03, relwidth=0.07, relheight=0.06)
+
+    def add_button5(self):
+        btn5 = tk.Button(self.root, text=self.sheet_5,
+                         command=lambda: [self.p5f.tkraise(), self.pb5.tkraise(), self.lb5.tkraise(),
+                                          self.check_if_status_completed(self.sheet_5)])
+        btn5.place(relx=0.37, rely=0.03, relwidth=0.1, relheight=0.06)
 
     def exit_button(self):
         btn_exit = tk.Button(self.root, text='Exit',
@@ -494,6 +512,9 @@ class Figure1(object):
 
         self.update_progressbar(self.pb4, self.sheet_4)
         self.update_label_progressbar(self.sheet_4, self.lb4)
+
+        self.update_progressbar(self.pb5, self.sheet_5)
+        self.update_label_progressbar(self.sheet_5, self.lb5)
 
         self.p1f.tkraise()
         self.pb1.tkraise()
