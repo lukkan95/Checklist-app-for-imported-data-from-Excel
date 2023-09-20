@@ -126,7 +126,7 @@ class Figure1(object):
         self.sheet_2 = 'Wyrzutnia'
         self.sheet_3 = 'Tankowanie'
         self.sheet_4 = 'Procedura_IBF'
-        self.sheet_5 = 'Procedura_przedstartowa'
+        self.sheet_5 = 'Procedura_startowa'
 
         self.root = root
         self.start_parameters()
@@ -442,31 +442,31 @@ class Figure1(object):
             label_progressbar.configure(bg='#ff6666')
 
     def add_button1(self):
-        btn1 = tk.Button(self.root, text=self.sheet_1,
+        btn1 = tk.Button(self.root, text=self.sheet_1, font=("Segoe UI", "6"),
                          command=lambda: [self.p1f.tkraise(), self.pb1.tkraise(), self.lb1.tkraise(),
                                           self.check_if_status_completed(self.sheet_1)])
         btn1.place(relx=0.05, rely=0.03, relwidth=0.07, relheight=0.06)
 
     def add_button2(self):
-        btn2 = tk.Button(self.root, text=self.sheet_2,
+        btn2 = tk.Button(self.root, text=self.sheet_2, font=("Segoe UI", "6"),
                          command=lambda: [self.p2f.tkraise(), self.pb2.tkraise(), self.lb2.tkraise(),
                                           self.check_if_status_completed(self.sheet_2)])
         btn2.place(relx=0.13, rely=0.03, relwidth=0.07, relheight=0.06)
 
     def add_button3(self):
-        btn3 = tk.Button(self.root, text=self.sheet_3,
+        btn3 = tk.Button(self.root, text=self.sheet_3, font=("Segoe UI", "6"),
                          command=lambda: [self.p3f.tkraise(), self.pb3.tkraise(), self.lb3.tkraise(),
                                           self.check_if_status_completed(self.sheet_3)])
         btn3.place(relx=0.21, rely=0.03, relwidth=0.07, relheight=0.06)
 
     def add_button4(self):
-        btn4 = tk.Button(self.root, text=self.sheet_4,
+        btn4 = tk.Button(self.root, text=self.sheet_4, font=("Segoe UI", "6"),
                          command=lambda: [self.p4f.tkraise(), self.pb4.tkraise(), self.lb4.tkraise(),
                                           self.check_if_status_completed(self.sheet_4)])
         btn4.place(relx=0.29, rely=0.03, relwidth=0.07, relheight=0.06)
 
     def add_button5(self):
-        btn5 = tk.Button(self.root, text=self.sheet_5,
+        btn5 = tk.Button(self.root, text=self.sheet_5, font=("Segoe UI", "6"),
                          command=lambda: [self.p5f.tkraise(), self.pb5.tkraise(), self.lb5.tkraise(),
                                           self.check_if_status_completed(self.sheet_5)])
         btn5.place(relx=0.37, rely=0.03, relwidth=0.1, relheight=0.06)
