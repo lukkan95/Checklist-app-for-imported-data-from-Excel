@@ -127,6 +127,7 @@ class Figure1(object):
         self.sheet_3 = 'Tankowanie'
         self.sheet_4 = 'Procedura_IBF'
         self.sheet_5 = 'Procedura_startowa'
+        self.sheet_6 = 'Procedura_nadrzędna'
 
         self.root = root
         self.start_parameters()
@@ -137,6 +138,7 @@ class Figure1(object):
         self.page3_frame()
         self.page4_frame()
         self.page5_frame()
+        self.page6_frame()
 
         self.lower_frame()
 
@@ -145,6 +147,7 @@ class Figure1(object):
                                      f'{str(self.sheet_3)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      f'{str(self.sheet_4)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      f'{str(self.sheet_5)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
+                                     f'{str(self.sheet_6)}': {f'var': [], f'checkbutton': [], f'entry_widget': []},
                                      }
 
         self.bind_key_maximize_window()
@@ -175,11 +178,16 @@ class Figure1(object):
         self.lb5 = self.label_progressbar(self.sheet_5)
         self.create_frame_with_data(self.p5f, self.sheet_5, self.pb5, self.lb5)
 
+        self.pb6 = self.progressbar()
+        self.lb6 = self.label_progressbar(self.sheet_6)
+        self.create_frame_with_data(self.p6f, self.sheet_6, self.pb6, self.lb6)
+
         self.add_button1()
         self.add_button2()
         self.add_button3()
         self.add_button4()
         self.add_button5()
+        self.add_button6()
 
         self.add_button_import_data_from_txt()
         self.exit_button()
@@ -244,7 +252,8 @@ class Figure1(object):
                                   self.sheet_2: {},
                                   self.sheet_3: {},
                                   self.sheet_4: {},
-                                  self.sheet_5: {}}
+                                  self.sheet_5: {},
+                                  self.sheet_6: {}}
 
     def page1_frame(self):
         self.p1f = tk.Frame(self.root)
@@ -265,6 +274,10 @@ class Figure1(object):
     def page5_frame(self):
         self.p5f = tk.Frame(self.root, bg='purple')
         self.p5f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
+
+    def page6_frame(self):
+        self.p6f = tk.Frame(self.root, bg='orange')
+        self.p6f.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
 
     def lower_frame(self):
         self.dfr = tk.Frame(self.root, width=0.1, height=0.1, bg='white')
@@ -471,6 +484,12 @@ class Figure1(object):
                                           self.check_if_status_completed(self.sheet_5)])
         btn5.place(relx=0.37, rely=0.03, relwidth=0.1, relheight=0.06)
 
+    def add_button6(self):
+        btn6 = tk.Button(self.root, text=self.sheet_6, font=("Segoe UI", "6"),
+                         command=lambda: [self.p6f.tkraise(), self.pb6.tkraise(), self.lb6.tkraise(),
+                                          self.check_if_status_completed(self.sheet_6)])
+        btn6.place(relx=0.48, rely=0.03, relwidth=0.1, relheight=0.06)
+
     def exit_button(self):
         btn_exit = tk.Button(self.root, text='Exit',
                              command=lambda: self.ask_if_exit())
@@ -515,6 +534,9 @@ class Figure1(object):
 
         self.update_progressbar(self.pb5, self.sheet_5)
         self.update_label_progressbar(self.sheet_5, self.lb5)
+
+        self.update_progressbar(self.pb6, self.sheet_6)
+        self.update_label_progressbar(self.sheet_6, self.lb6)
 
         self.p1f.tkraise()
         self.pb1.tkraise()
