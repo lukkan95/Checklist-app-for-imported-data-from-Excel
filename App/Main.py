@@ -85,6 +85,13 @@ class DataToTxt(object):
         path = f'{os.path.dirname(os.path.realpath(__file__))}\{filename}'
         os.remove(path)
 
+    @staticmethod
+    def get_last_line_from_txt_file(filename):
+        with open(filename, "r") as file:
+            lines = file.readlines()
+            last_line = lines[-1]
+            return last_line
+
 
 class ConvertedDateTime(object):
 
@@ -195,6 +202,8 @@ class Figure1(object):
         self.p1f.tkraise()
         self.pb1.tkraise()
         self.lb1.tkraise()
+
+        self.information_label()
 
         self.exit_window = ExitWindow()
         self.filename = DataToTxt().create_text_file()
@@ -319,6 +328,7 @@ class Figure1(object):
         else:
             DataToTxt.add_to_text_file(self.filename,
                                        f'{ConvertedDateTime.get_time()} {procedure}: Dodano komentarz: # {txt}\n')
+            self.upgrade_information_label()
             return True
 
     def create_frame_with_data(self, root, sheet_choice, progressbar, label_progressbar):
@@ -376,9 +386,9 @@ class Figure1(object):
             lb_note = tk.Label(second_frame, bg='#E8E8E8', text=f'{note}', anchor='center', wraplength=self.wraplength)
             lb_note.grid(row=i, column=3, pady=10, sticky='news', padx=padx)
 
-            vcmd = self.root.register(self.callback_entry)
+            vcmd = (self.root.register(self.callback_entry), '%P', '%W')
             entry_comment = tk.Entry(second_frame, font=("Segoe UI", "10"), justify='center', relief='solid',
-                                     validate='focusout', validatecommand=(vcmd, '%P', '%W'), name=f'#'
+                                     validate='focusout', validatecommand=vcmd, name=f'#'
                                                                                                    f'{sheet_choice} '
                                                                                                    f'{elem}')
 
@@ -403,7 +413,8 @@ class Figure1(object):
                                 self.check_if_status_completed(sheet_choice),
                                 self.update_progressbar(progressbar, sheet_choice),
                                 self.update_label_progressbar(sheet_choice, label_progressbar),
-                                self.disable_import_button()])
+                                self.disable_import_button(),
+                                self.upgrade_information_label()])
 
         self.checkbuttons_storage[sheet_choice]['checkbutton'].append(cb)
         self.checkbuttons_storage[sheet_choice]['var'].append(var)
@@ -555,6 +566,16 @@ class Figure1(object):
 
     def disable_import_button(self):
         self.btn_import['state'] = 'disabled'
+
+
+    def information_label(self):
+        self.lbl_inf = tk.Label(self.root, text='', wraplength=470, anchor='w')
+        self.lbl_inf.place(relx=0.05, rely=0.71, relwidth=0.3, relheight=0.08)
+
+    def upgrade_information_label(self):
+        self.lbl_inf['text'] = str(DataToTxt.get_last_line_from_txt_file(self.filename))
+        self.lbl_inf.update()
+
 
 
 class ExitWindow(object):
