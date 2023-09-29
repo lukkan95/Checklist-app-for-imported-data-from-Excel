@@ -204,6 +204,7 @@ class Figure1(object):
         self.lb1.tkraise()
 
         self.information_label()
+        self.information_label_description()
 
         self.exit_window = ExitWindow()
         self.filename = DataToTxt().create_text_file()
@@ -432,9 +433,13 @@ class Figure1(object):
     def check_if_status_completed(self, sheet):
         if int(0) in self.dict_check_status[sheet].values():
             self.root.config(background="#ff6666")
+            self.lbl_inf.config(background="#ff6666")
+            self.lbl_inf_desc.config(background="#ff6666")
             self.root.update()
         else:
             self.root.config(background="#006118")
+            self.lbl_inf.config(background="#006118")
+            self.lbl_inf_desc.config(background="#006118")
             self.root.update()
 
     def progressbar(self):
@@ -569,13 +574,16 @@ class Figure1(object):
 
 
     def information_label(self):
-        self.lbl_inf = tk.Label(self.root, text='', wraplength=470, anchor='w')
-        self.lbl_inf.place(relx=0.05, rely=0.71, relwidth=0.3, relheight=0.08)
+        self.lbl_inf = tk.Label(self.root, text='', wraplength=2000, anchor='w', font=("Segoe UI", "6"), bg="#ff6666", justify='center')
+        self.lbl_inf.place(relx=0.05, rely=0.96, relwidth=0.9, relheight=0.03)
 
     def upgrade_information_label(self):
         self.lbl_inf['text'] = str(DataToTxt.get_last_line_from_txt_file(self.filename))
         self.lbl_inf.update()
 
+    def information_label_description(self):
+        self.lbl_inf_desc = tk.Label(self.root, text='Ostatni log w pliku txt', wraplength=45, anchor='w', font=("Segoe UI", "6"), bg="#ff6666", justify='center')
+        self.lbl_inf_desc.place(relx=0.01, rely=0.96, relwidth=0.03, relheight=0.03)
 
 
 class ExitWindow(object):
@@ -609,7 +617,7 @@ class ExitWindow(object):
         label.place(relx=0, rely=0, relwidth=1, relheight=0.6)
 
     def confirm_exit_button(self):
-        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: Figure1().exit(),
+        button = tk.Button(self.new_window, text='Yes', default='normal', command=lambda: sys.exit(),
                            font=("Segoe "
                                  "UI", "6"))
         button.place(relx=0.05, rely=0.5, relwidth=0.4, relheight=0.4)
@@ -633,4 +641,4 @@ class ExitWindow(object):
 if __name__ == '__main__':
     figure = Figure1()
     figure.root_mainloop_start()
-    DataToTxt.delete_txt_file(figure.filename)
+    # DataToTxt.delete_txt_file(figure.filename)
