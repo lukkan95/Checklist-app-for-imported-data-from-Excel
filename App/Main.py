@@ -351,14 +351,14 @@ class Figure1(object):
         excel_data = ImportExcelData(self.excel_file_name, sheet_choice)
         excel_data.get_procedures()
 
-        label_procedure = tk.Label(second_frame, bg='#888888', text='Procedura', font=self.font,
+        label_procedure = tk.Label(second_frame, bg='#888888', text='Czynność', font=self.font,
                                    wraplength=self.wraplength)
         label_procedure.grid(row=0, column=0, sticky='news', padx=padx)
 
-        employee_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Osoby', font=self.font)
+        employee_procedure = tk.Label(second_frame, bg='#A9A9A9', text='Kto', font=self.font)
         employee_procedure.grid(row=0, column=1, sticky='news', padx=padx)
 
-        tool_procedure = tk.Label(second_frame, bg='#D3D3D3', text='Potrzebne narzędzia', font=self.font,
+        tool_procedure = tk.Label(second_frame, bg='#D3D3D3', text='Niezbędny sprzęt', font=self.font,
                                   wraplength=self.wraplength)
         tool_procedure.grid(row=0, column=2, sticky='news', padx=padx)
 
@@ -575,15 +575,15 @@ class Figure1(object):
 
     def information_label(self):
         self.lbl_inf = tk.Label(self.root, text='', wraplength=2000, anchor='w', font=("Segoe UI", "6"), bg="#ff6666", justify='center')
-        self.lbl_inf.place(relx=0.05, rely=0.96, relwidth=0.9, relheight=0.03)
+        self.lbl_inf.place(relx=0.05, rely=0.97, relwidth=0.9, relheight=0.035)
 
     def upgrade_information_label(self):
         self.lbl_inf['text'] = str(DataToTxt.get_last_line_from_txt_file(self.filename))
         self.lbl_inf.update()
 
     def information_label_description(self):
-        self.lbl_inf_desc = tk.Label(self.root, text='Ostatni log w pliku txt', wraplength=45, anchor='w', font=("Segoe UI", "6"), bg="#ff6666", justify='center')
-        self.lbl_inf_desc.place(relx=0.01, rely=0.96, relwidth=0.03, relheight=0.03)
+        self.lbl_inf_desc = tk.Label(self.root, text='Ost. log', wraplength=80, anchor='w', font=("Segoe UI", "6"), bg="#ff6666", justify='center')
+        self.lbl_inf_desc.place(relx=0.005, rely=0.96, relwidth=0.035, relheight=0.035)
 
 
 class ExitWindow(object):
